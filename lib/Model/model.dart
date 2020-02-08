@@ -172,6 +172,7 @@ class Quiz {
   String id;
   String qzQuestion;
   String qzType;
+  bool checkunanswer;
   List<String> qzChoices;
   List<bool> answers;
 
@@ -179,6 +180,7 @@ class Quiz {
     this.id,
     this.qzQuestion,
     this.qzType,
+    this.checkunanswer,
     this.qzChoices,
     this.answers,
   });

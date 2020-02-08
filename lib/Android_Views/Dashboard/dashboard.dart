@@ -54,7 +54,7 @@ class _DashBoardState extends State<DashBoard> {
     var url = '$urlLink/$token/user/$uid/enrolledCourses/';
     await http.get(url).then((result) {
       var courses = json.decode(result.body);
-      if (courses[0] == null) {
+      if (courses == null) {
         setState(() {
           _noCourse = true;
           _loading = false;

@@ -91,17 +91,22 @@ class _RegistryState extends State<Registry> {
 
       var type = department;  
 
-      var branch = branchlist;  
+      var branch = branchlist[0];  
       //api.add_resource(UserEmailSignUp, '/register/<email>/<username>/<firstname>/<lastname>'
                                   // '/<password>/<pos>/<dept>/<type>/<branch>/')
       var url =
           "$urlLink/register/$email/$username/$firstName/$lastName/$password/$pos/$dept/$type/$branch/";
+      print(url);
       await http.get(url).then((data) {
         setState(() {
           _loading = false;
-          Navigator.of(context).pop();
+          // Navigator.of(context).pop();
         });
-      });
+      }).then((value) {
+    print('completed with value $value');
+  }, onError: (error) {
+    print('completed with error $error');
+  });
     } else {
       setState(() {     
         _loading = false;
@@ -116,20 +121,20 @@ class _RegistryState extends State<Registry> {
       child: SingleChildScrollView(
           child: Column(
         children: <Widget>[
-          Container(
-            height: 160,
-            child: Stack(
-              children: <Widget>[
-                ClipPath(
-                  child: Container(
-                    height: 125,
-                    color: mBlue,
-                  ),
-                  clipper: CustomClip(),
-                ),
-              ],
-            ),
-          ),
+          // Container(
+          //   height: 30,
+          //   child: Stack(
+          //     children: <Widget>[
+          //       ClipPath(
+          //         child: Container(
+          //           height: 125,
+          //           color: mBlue,
+          //         ),
+          //         clipper: CustomClip(),
+          //       ),
+          //     ],
+          //   ),
+          // ),
           Padding(
               padding: EdgeInsets.only(left: 20, right: 20),
               child: Column(

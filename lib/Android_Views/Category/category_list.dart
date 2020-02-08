@@ -22,31 +22,6 @@ class _CategoryListState extends State<CategoryList> {
   List<Category> _categoryList = [];
   bool _loading = true;
 
-
-  // void _counter() {
-  //   print("counter activated!");
-  //   Timer(Duration(minutes: 1), () {
-  //   PersonDatabaseProvider.db.deleteAllPersons();
-  //   Navigator.pushReplacement(
-  //     context,
-  //     MaterialPageRoute(builder: (context) => LandingPage()),
-  //   );
-  //     _showAlertDialog('Timer', 'Logged out due to inactivity');
-  //   });
-  // }
-
-  // void _showAlertDialog(String title, String message) {
-
-  //   AlertDialog alertDialog = AlertDialog(
-  //     title: Text(title),
-  //     content: Text(message),
-  //   );
-  //   showDialog(
-  //       context: context,
-  //       builder: (_) => alertDialog
-  //   );
-  // }
-
   @override
   void initState() {
     super.initState();
@@ -108,7 +83,7 @@ class _CategoryListState extends State<CategoryList> {
     print('completed with error $error');
     _categoryList.clear();
     AutoLogoutMethod.autologout.counter(context);
-    _getCategory();
+    // _getCategory();
   });
     return _categoryList;
   }

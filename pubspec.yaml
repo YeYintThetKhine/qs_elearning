@@ -29,7 +29,10 @@ dependencies:
   connectivity: ^0.4.3+2
   intl: ^0.15.8
   table_calendar: ^1.2.5
-
+  flutter_widgets: ^0.1.9
+  carousel_slider: ^1.4.1
+  photo_view: ^0.9.1
+  
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -65,6 +68,11 @@ flutter:
     - images/quiz.png
     - images/book_stack.png
     - images/insurance.png
+    - images/1.png
+    - images/2.png
+    - images/3.png
+    - images/4.png
+    - images/5.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

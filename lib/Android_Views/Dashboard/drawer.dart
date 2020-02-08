@@ -5,9 +5,12 @@ import '../../ThemeColors/colors.dart';
 import '../LandingPage/landing_page.dart';
 import '../Event/event_calendar.dart';
 import '../Category/category_list.dart';
+import '../Settings/settings.dart';
+import '../Help/help.dart';
 import 'package:moodle_test/DB/db.dart';
 
 Widget drawer(User user, BuildContext context) {
+
   _logout() {
     PersonDatabaseProvider.db.deleteAllPersons();
     Navigator.pushReplacement(
@@ -116,18 +119,48 @@ Widget drawer(User user, BuildContext context) {
                       color: mWhite,
                     ),
                   ),
-                  // ListTile(
-                  //   title: Text(
-                  //     "Settings",
-                  //     style: TextStyle(
-                  //       color: mWhite,
-                  //     ),
-                  //   ),
-                  //   leading: Icon(
-                  //     Icons.settings,
-                  //     color: mWhite,
-                  //   ),
-                  // ),
+                  ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              Help(),
+                        ),
+                      );
+                    },
+                    title: Text(
+                      "Help",
+                      style: TextStyle(
+                        color: mWhite,
+                      ),
+                    ),
+                    leading: Icon(
+                      Icons.help,
+                      color: mWhite,
+                    ),
+                  ),
+                  ListTile(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              Setting(),
+                        ),
+                      );
+                    },
+                    title: Text(
+                      "Setting",
+                      style: TextStyle(
+                        color: mWhite,
+                      ),
+                    ),
+                    leading: Icon(
+                      Icons.settings,
+                      color: mWhite,
+                    ),
+                  ),
                 ],
               ),
             ),

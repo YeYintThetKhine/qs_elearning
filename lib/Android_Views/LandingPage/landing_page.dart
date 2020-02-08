@@ -97,13 +97,9 @@ class _LandingPageState extends State<LandingPage> {
             _signingIn = false;
           });
         } else {
-          print("passed here 1");
           token = data['token'];
-          print("passed here 2");
           var getUser = '$urlLink/$token/user/$username/';
-          print("passed here 3");
           await http.get(getUser).then((userDate) {
-            print(userDate);
             var userData = json.decode(userDate.body);
             currentUser = User(
               id: userData[0]['id'].toString(),
@@ -129,16 +125,6 @@ class _LandingPageState extends State<LandingPage> {
             acc.type = userData[0]['customfields'][1]['value'];
             PersonDatabaseProvider.db.addPersonToDatabase(acc);
             PersonDatabaseProvider.db.getAllPersons().then((value) {
-              print(value.length);
-              print(value[0].token);
-              print(value[0].id);
-              print(value[0].name);
-              print(value[0].username);
-              print(value[0].email);
-              print(value[0].imgUrl);
-              print(value[0].department);
-              print(value[0].position);
-              print(value[0].type);
             }
             );
             Navigator.of(context).pushAndRemoveUntil(
