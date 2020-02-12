@@ -8,26 +8,69 @@ import '../Dashboard/drawer.dart';
 // import '../Dashboard/recent_course.dart';
 import '../../Model/user.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
+import '../URL/url.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import '../../Model/model.dart';
 
 
 class GradeHistoryMore extends StatefulWidget {
+
+  final int courseid;
+  final String categoryname;
+  final String coursename;
+
+  GradeHistoryMore({this.courseid,this.categoryname,this.coursename});
   @override
-  _GradeHistoryMoreState createState() => _GradeHistoryMoreState();
+  _GradeHistoryMoreState createState() => _GradeHistoryMoreState(courseid:courseid,categoryname:categoryname,coursename:coursename);
 }
 
 class _GradeHistoryMoreState extends State<GradeHistoryMore> {
+  List<DetailGrades> _quizGradeList = [];
+  final int courseid;
+  final String categoryname;
+  final String coursename;
+  bool _loading = false;
+
+  _GradeHistoryMoreState({this.courseid,this.categoryname,this.coursename});
 
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
 
+  
 
   countertimer(){
   AutoLogoutMethod.autologout.counter(context);
+  }
+
+  getFinalQuizResult() async {
+    String uid = currentUser.id;
+    var response;
+    var url = '$urlLink/$token/gradedetail/$courseid/$uid/';
+      await http.get(url).then((result) {
+        var grades = json.decode(result.body);
+        for (var grade in grades['detail']) {
+          _quizGradeList.add(DetailGrades(
+            itemname: grade['itemname'],
+            grade: grade['graderaw'].toString(),
+            grademax: grade['grademax'].toString(),
+            percentage: grade['percentageformatted'],
+          ));
+        }
+        setState(() {
+          _loading = true;
+        });
+      }).then((value) {
+      print('completed with value $value');
+      }, onError: (error) {
+        print('completed with error $error');
+      });
   }
 
   @override
   void initState() {
     super.initState();
     countertimer();
+    getFinalQuizResult();
   }
 
   @override
@@ -42,7 +85,7 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
       backgroundColor: mBlue,
       appBar: AppBar(
         elevation: 0.0,
-        title: Text('List of Grade History'),
+        title: Text('List of Quiz Grades'),
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.chevron_left),
@@ -68,7 +111,11 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
         automaticallyImplyLeading: false,
       ),
       drawer: drawer(currentUser, context),
-      body: SingleChildScrollView(
+      body: _loading == false
+      ?Center(
+        child: CircularProgressIndicator(),
+      ) 
+      :SingleChildScrollView(
         child: OrientationBuilder(
           builder: (context, orient) {
             return Stack(
@@ -79,7 +126,9 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
                           left: 15.0,right: 15.0,top:15.0, bottom: 20.0),
                       padding: EdgeInsets.only(
                           left: 15.0,right: 15.0,top:230.0,bottom: 20.0),
-                      decoration: BoxDecoration(
+                      decoration: _quizGradeList.length == 1
+                      ? BoxDecoration(color: mBlue)
+                      :BoxDecoration(
                         borderRadius: BorderRadius.only(
                           topRight: Radius.circular(40),
                           topLeft: Radius.circular(40),
@@ -96,10 +145,10 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
                         ],
                       color: Colors.white60,
                       ),
-                      child: ListView.builder(
+                      child:ListView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
-                        itemCount: place_name.length,
+                        itemCount: _quizGradeList.length-1,
                         itemBuilder: (context, index) { 
                         return Column(
                           children: <Widget>[
@@ -142,7 +191,7 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
                                   ),
                                 ),
                                 Expanded(
-                                  child: Text("Accounting Course Beginner Level",
+                                  child: Text(_quizGradeList[index+1].itemname,
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
@@ -203,7 +252,7 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
                                   padding: EdgeInsets.symmetric(
                                       vertical: 8.0, horizontal: 3.0),
                                   child: Text(
-                                    "Category - Banking",
+                                    "Category - $categoryname",
                                     style: TextStyle(
                                       color: Colors.white,
                                       fontSize: 16.0,
@@ -264,12 +313,16 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
                       ),
                       child: Column(
                         children: <Widget>[
-                          Expanded(
-                            child: Text("Accounting Course Beginner Level",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15,
+                          Align(
+                            alignment: Alignment.topLeft,
+                            child: Container(
+                              padding: EdgeInsets.only(left:35),
+                              child: Text(_quizGradeList[0].itemname,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 15,
+                                ),
                               ),
                             ),
                           ),
@@ -288,7 +341,7 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
                                 padding: EdgeInsets.symmetric(
                                     vertical: 8.0, horizontal: 3.0),
                                 child: Text(
-                                  "Grade - 9/10",
+                                  "Grade - ${_quizGradeList[0].grade} out of ${_quizGradeList[0].grademax}",
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16.0,
@@ -312,7 +365,7 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
                                 padding: EdgeInsets.symmetric(
                                     vertical: 8.0, horizontal: 3.0),
                                 child: Text(
-                                  "Category - Banking",
+                                  "Category - $categoryname",
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16.0,
@@ -336,7 +389,7 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
                                 padding: EdgeInsets.symmetric(
                                     vertical: 8.0, horizontal: 3.0),
                                 child: Text(
-                                  "Percentage - 100%",
+                                  "Percentage - ${_quizGradeList[0].percentage}",
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 16.0,

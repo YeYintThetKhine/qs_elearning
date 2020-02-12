@@ -21,7 +21,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
-  http: ^0.12.0+2
+  http: ^0.12.0+4
   flutter_html: ^0.10.4
   percent_indicator: "^1.0.16"
   crypto: ^2.0.6
@@ -73,6 +73,7 @@ flutter:
     - images/3.png
     - images/4.png
     - images/5.png
+    - images/ebanking.jpg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

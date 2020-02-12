@@ -8,4 +8,4 @@
 //var urlLink = 'http://192.168.3.191:5000'; 
 
 // my link
-var urlLink = 'http://192.168.3.144:5000'; 
+var urlLink = 'http://192.168.1.2:5000'; 

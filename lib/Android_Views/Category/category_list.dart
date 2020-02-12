@@ -81,7 +81,6 @@ class _CategoryListState extends State<CategoryList> {
     print('completed with value $value');
   }, onError: (error) {
     print('completed with error $error');
-    _categoryList.clear();
     AutoLogoutMethod.autologout.counter(context);
     // _getCategory();
   });

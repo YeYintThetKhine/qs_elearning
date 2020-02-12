@@ -115,6 +115,7 @@ class _LandingPageState extends State<LandingPage> {
             PersonDatabaseProvider.db.deleteAllPersons();
             Person acc = Person();
             acc.token = data['token'];
+            print(acc.token);
             acc.id = userData[0]['id'].toString();
             acc.name = userData[0]['fullname'];
             acc.username = userData[0]['username'];

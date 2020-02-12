@@ -237,3 +237,33 @@ class Lesson {
     this.previousPage,
   });
 }
+
+class GradeByCategory {
+  String categoryname;
+  String coursename;
+  int courseid;
+  String mark;
+  String gradeCategoryImg;
+
+  GradeByCategory({
+    this.categoryname,
+    this.coursename,
+    this.courseid,
+    this.mark,
+    this.gradeCategoryImg,
+  });
+}
+
+class DetailGrades {
+  String itemname;
+  String grade;
+  String grademax;
+  String percentage;
+
+  DetailGrades({
+    this.itemname,
+    this.grade,
+    this.grademax,
+    this.percentage,
+  });
+}

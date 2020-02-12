@@ -17,6 +17,7 @@ import '../URL/url.dart';
 import '../../Model/user.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 
+
 class DashBoard extends StatefulWidget {
   @override
   _DashBoardState createState() => _DashBoardState();
@@ -25,7 +26,9 @@ class DashBoard extends StatefulWidget {
 class _DashBoardState extends State<DashBoard> {
   List<Course> _courseList = [];
   List<Event> _eventList = [];
+  List<GradeByCategory> _categoryQuizList = [];
   bool _loading = true;
+  bool _loading_gradehistory = true;
   bool _noCourse = false;
   bool getRecent = false;
   bool noRecent = false;
@@ -33,11 +36,51 @@ class _DashBoardState extends State<DashBoard> {
   bool _event = true;
   Course recentcourse;
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+  var getCategoryQuiz;
 
   countertimer(){
     AutoLogoutMethod.autologout.counter(context);
   }
 
+  getQuizMaryByCategory() async {
+    String uid = currentUser.id;
+    var response;
+    var url = '$urlLink/$token/usergrades/$uid';
+    try {
+      response = await http.get(url).timeout(
+            Duration(seconds: 20),
+      );
+    } catch (e) {
+
+    }
+    if (response == null || response.statusCode != 200) {
+      print('Error');
+    }
+    else{
+      await http.get(url).then((result) {
+        print(url);
+        var categoryGrades = json.decode(result.body);
+        for (var categoryGrade in categoryGrades['grades']) {
+          _categoryQuizList.add(GradeByCategory(
+            categoryname: categoryGrade['categoryname'],
+            coursename: categoryGrade['coursename'],
+            courseid: categoryGrade['courseid'],
+            mark: categoryGrade['mark'],
+            gradeCategoryImg: categoryGrade['imageurl'],
+          ));
+        }
+        setState(() {
+          _loading_gradehistory = false;
+        });
+      }).then((value) {
+      print('completed with value $value');
+      }, onError: (error) {
+        print('completed with error $error');
+      });
+    }
+  }
+
+  
 
   @override
   void initState() {
@@ -46,6 +89,7 @@ class _DashBoardState extends State<DashBoard> {
     _getRecentCourse();
     _getTodayEvents();
     countertimer();
+    getQuizMaryByCategory();
   }
 
   _courseOverview() async {
@@ -226,8 +270,14 @@ class _DashBoardState extends State<DashBoard> {
                     style: TextStyle(color: Colors.white, fontSize: 20.0),
                   ),
                 ),
-                Container(
-                  child: gradeHistoryWidget(context),
+                _loading_gradehistory == false
+                ?Container(
+                  child: gradeHistoryWidget(_categoryQuizList,token,context),
+                )
+                :Container(
+                  padding: EdgeInsets.only(
+                      top: 10.0, left: 32.0, bottom: 10.0, right: 10.0),
+                  child: EventLoading(),
                 ),
                 // getRecent == true
                 //     ? Container(

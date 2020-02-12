@@ -58,6 +58,7 @@ class _CourseModulesState extends State<CourseModules> {
 
   Future<Topic> getModules() async {
     var modUrl = '$urlLink/$token/course/$courseId/section/${topic.id}/';
+    print(modUrl);
     await http.get(modUrl).then((response) {
       var mods = json.decode(response.body);
       if (mods[0]['modules'].length > 0) {
