@@ -5,10 +5,6 @@ import '../../ThemeColors/colors.dart';
 
 import 'package:flutter/cupertino.dart';
 import '../../Model/model.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import '../URL/url.dart';
-import 'package:flutter_widgets/flutter_widgets.dart';
 
 class ShowQuizResult extends StatefulWidget {
 

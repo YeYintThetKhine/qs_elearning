@@ -51,6 +51,7 @@ class _ModuleQuizState extends State<ModuleQuiz> {
     var number = 0;
     var response;
     var url = '$urlLink/$token/quiz/${module.instance}/';
+    print(url);
       try {
         response = await http.get(url).then((data) {
           var result = json.decode(data.body);
@@ -185,30 +186,6 @@ class _ModuleQuizState extends State<ModuleQuiz> {
     curve: Curves.easeInOutCubic);
   }
 
-  // submitQuiz() async {
-  //   _processingDialog();
-  //   setState(() {
-  //     _processing = true;
-  //   });
-  //   var submitUrl = '$urlLink/$token/quiz/save/$atmtID/?';
-  //   var parameter = '';
-  //   for (var i = 0; i < quizAnsList.length; i++) {
-  //     parameter +=
-  //         'sname$i=${quizAnsList[i].slot}&svalue$i=${quizAnsList[i].slotValue}&seqname$i=${quizAnsList[i].sequencecheck}&seqvalue$i=${quizAnsList[i].sequencecheckValue}&ansname$i=${quizAnsList[i].answer}&ansvalue$i=${quizAnsList[i].ansValue}';
-  //   }
-  //   await http.get(submitUrl + parameter).then((response) {
-  //     var msg = json.decode(response.body);
-  //     if (msg['state'] == 'finished') {
-  //       setState(() {
-  //         _processing = false;
-  //         _finished = true;
-  //       });
-  //       getQuizResult();
-  //       setModuleCompleteStatus();
-  //     }
-  //   });
-  // }
-
     submitQuiz() async {
     _processingDialog();
     setState(() {
@@ -218,9 +195,9 @@ class _ModuleQuizState extends State<ModuleQuiz> {
     var parameter = '';
     for (var i = 0; i < quizAnsList.length; i++) {
       parameter +=
-        'sname$i=${quizAnsList[i].slot}&svalue$i=${quizAnsList[i].slotValue}&seqname$i=${quizAnsList[i].sequencecheck}&seqvalue$i=${quizAnsList[i].sequencecheckValue}&ansname$i=${quizAnsList[i].answer}&ansvalue$i=${quizAnsList[i].ansValue}&';
+          'sname$i=${quizAnsList[i].slot}&svalue$i=${quizAnsList[i].slotValue}&seqname$i=${quizAnsList[i].sequencecheck}&seqvalue$i=${quizAnsList[i].sequencecheckValue}&ansname$i=${quizAnsList[i].answer}&ansvalue$i=${quizAnsList[i].ansValue}&';
     }
-    print(parameter);
+    parameter += 'numofq=${quizAnsList.length}';
     await http.get(submitUrl + parameter).then((response) {
       var msg = json.decode(response.body);
       if (msg['state'] == 'finished') {
@@ -231,7 +208,11 @@ class _ModuleQuizState extends State<ModuleQuiz> {
         getQuizResult();
         setModuleCompleteStatus();
       }
-    });
+    }).then((value) {
+    print('completed with value $value');
+  }, onError: (error) {
+    print('completed with error $error');
+  });
   }
 
   getQuizResult() async {
@@ -252,7 +233,11 @@ class _ModuleQuizState extends State<ModuleQuiz> {
         );
         quizResults.add(qr);
       }
-    });
+    }).then((value) {
+    print('getQuizResult completed with value $value');
+  }, onError: (error) {
+    print('getQuizResult completed with error $error');
+  });
   }
 
   setModuleCompleteStatus() async {
@@ -262,7 +247,11 @@ class _ModuleQuizState extends State<ModuleQuiz> {
       if (data['status'] == true) {
         Navigator.of(context).pop();
       }
-    });
+    }).then((value) {
+    print('setModuleCompleteStatus completed with value $value');
+  }, onError: (error) {
+    print('setModuleCompleteStatus completed with error $error');
+  });
   }
 
   finishAttempt() {

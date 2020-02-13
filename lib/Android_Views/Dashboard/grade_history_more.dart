@@ -118,327 +118,158 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
       :SingleChildScrollView(
         child: OrientationBuilder(
           builder: (context, orient) {
-            return Stack(
-                  children: <Widget>[
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      margin: EdgeInsets.only(
-                          left: 15.0,right: 15.0,top:15.0, bottom: 20.0),
-                      padding: EdgeInsets.only(
-                          left: 15.0,right: 15.0,top:230.0,bottom: 20.0),
-                      decoration: _quizGradeList.length == 1
-                      ? BoxDecoration(color: mBlue)
-                      :BoxDecoration(
-                        borderRadius: BorderRadius.only(
-                          topRight: Radius.circular(40),
-                          topLeft: Radius.circular(40),
-                          bottomRight: Radius.circular(20),
-                          bottomLeft: Radius.circular(20),
+            return Container(
+              child: ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: _quizGradeList.length,
+                itemBuilder: (context, index) { 
+                  return Stack(
+                    children: <Widget>[
+                      Container(
+                        height: 120,
+                        width: MediaQuery.of(context).size.width,
+                        margin: EdgeInsets.only(
+                            left: 20.0,right: 10.0,top:0.0, bottom: 15.0),
+                        padding: EdgeInsets.only(
+                            left: 15.0,top:0.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(20),
+                            topLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                            bottomLeft: Radius.circular(20),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              offset: Offset(0.0, 0.0),
+                              blurRadius: 5.0,
+                              spreadRadius: 2.0,
+                              color: Colors.black12,
+                            )
+                          ],
+                        color: Colors.white,
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            offset: Offset(0.0, 0.0),
-                            blurRadius: 5.0,
-                            spreadRadius: 2.0,
-                            color: Colors.black12,
-                          )
-                        ],
-                      color: Colors.white60,
-                      ),
-                      child:ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _quizGradeList.length-1,
-                        itemBuilder: (context, index) { 
-                        return Column(
-                          children: <Widget>[
-                            Row(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children:[
+                            Container(
+                              width: 130,
+                              padding: EdgeInsets.only(left:15),
+                              child: Center(
+                                child: Text(_quizGradeList[index].itemname,style: TextStyle(fontWeight: FontWeight.bold,color:Colors.grey[700])),
+                              ),
+                            ),
+                            Stack(
                               children: <Widget>[
                                 Container(
-                                  width: 40,
-                                  height: 30,
+                                  width: 30,
+                                  height: 55,
                                   margin: EdgeInsets.only(
-                                      left: 15.0,right: 15.0),
+                                    top:35.0,left: 3),
                                   decoration: BoxDecoration(
-                                      color: Colors.amber,
-                                      borderRadius: new BorderRadius.circular(25.0),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          offset: Offset(0.0, 0.0),
-                                          blurRadius: 5.0,
-                                          spreadRadius: 2.0,
-                                          color: Colors.black12,
-                                        )
-                                      ],
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(20),
+                                      topLeft: Radius.circular(10),
+                                      bottomRight: Radius.circular(20),
+                                      bottomLeft: Radius.circular(10),
+                                    ),
+                                  color: Colors.amber,
                                   ),
-                                  child: Center(
-                                    child: Text((index+2).toString(),
-                                      style: TextStyle(color: Colors.white, fontSize: 15.0,fontWeight: FontWeight.bold,
-                                              shadows: <Shadow>[
-                                                Shadow(
-                                                  offset: Offset(0.0, 0.0),
-                                                  blurRadius: 18.0,
-                                                  color: Color.fromARGB(255, 0, 0, 0),
-                                                ),
-                                                Shadow(
-                                                  offset: Offset(0.0, 1.0),
-                                                  blurRadius: 0.0,
-                                                  color: Color.fromARGB(125, 0, 0, 255),
-                                                ),
-                                              ],
+                                ),
+                                Container(
+                                  width: 200,
+                                  margin: EdgeInsets.only(left:10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.only(
+                                      topRight: Radius.circular(20),
+                                      topLeft: Radius.circular(10),
+                                      bottomRight: Radius.circular(20),
+                                      bottomLeft: Radius.circular(10),
+                                    ),
+                                  color: Colors.amber,
+                                  ),
+                                ),
+                                Container(
+                                  padding:EdgeInsets.symmetric(vertical: 10),
+                                  width: 180,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children:[
+                                      Center(
+                                        child:Container(
+                                          padding:EdgeInsets.only(left:30),
+                                          child:Text('Grade Info',
+                                            style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color:Colors.grey[700])),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Text(_quizGradeList[index+1].itemname,
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 15,
-                                        shadows: <Shadow>[
-                                            Shadow(
-                                              offset: Offset(0.0, 0.0),
-                                              blurRadius: 10.0,
-                                              color: Color.fromARGB(255, 0, 0, 0),
-                                            ),
-                                            Shadow(
-                                              offset: Offset(0.0, 1.0),
-                                              blurRadius: 0.0,
-                                              color: Color.fromARGB(125, 0, 0, 255),
-                                            ),
-                                        ],
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 16.0),
-                                  child: Icon(
-                                    Icons.grade,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 3.0),
-                                  child: Text(
-                                    "Grade - 9/10",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16.0,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 16.0),
-                                  child: Icon(
-                                    Icons.category,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 3.0),
-                                  child: Text(
-                                    "Category - $categoryname",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16.0,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                              Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 16.0),
-                                  margin: EdgeInsets.only(bottom: 20.0),
-                                  child: Icon(
-                                    Icons.trending_up,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                Container(
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 8.0, horizontal: 3.0),
-                                  margin: EdgeInsets.only(bottom: 20.0),
-                                  child: Text(
-                                    "Percentage - 100%",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16.0,
-                                    ),
+                                      Align(
+                                        alignment: Alignment.topRight,
+                                        child: Container(
+                                          child:Text('Grade - ${_quizGradeList[index].grade}/${_quizGradeList[index].grademax}',
+                                            style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color:Colors.white)),
+                                        ),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.topRight,
+                                        child: Container(
+                                          child:Text('Category - $categoryname',
+                                            style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color:Colors.white)),
+                                        ),
+                                      ),
+                                      Align(
+                                        alignment: Alignment.topRight,
+                                        child: Container(
+                                          child:Text('Percentage - ${_quizGradeList[index].percentage}',
+                                            style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,color:Colors.white)),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ],
                             ),
                           ],
-                        );
-                        }
-                      ),
-                    ),
-                    Container(
-                      height: 200,
-                      width: MediaQuery.of(context).size.width,
-                      margin: EdgeInsets.only(
-                          left: 15.0,right: 15.0,top:15.0),
-                      padding: EdgeInsets.only(
-                          left: 15.0,right: 15.0,top:30.0, bottom: 15.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(40.0),
-                          boxShadow: [
-                            BoxShadow(
-                              offset: Offset(0.0, 0.0),
-                              blurRadius: 5.0,
-                              spreadRadius: 2.0,
-                              color: Colors.black12,
-                            )
-                          ],
-                        color: Colors.indigo[800],
-                      ),
-                      child: Column(
-                        children: <Widget>[
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Container(
-                              padding: EdgeInsets.only(left:35),
-                              child: Text(_quizGradeList[0].itemname,
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 16.0),
-                                child: Icon(
-                                  Icons.grade,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 3.0),
-                                child: Text(
-                                  "Grade - ${_quizGradeList[0].grade} out of ${_quizGradeList[0].grademax}",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 16.0),
-                                child: Icon(
-                                  Icons.category,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 3.0),
-                                child: Text(
-                                  "Category - $categoryname",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                            Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 16.0),
-                                child: Icon(
-                                  Icons.trending_up,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Container(
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 8.0, horizontal: 3.0),
-                                child: Text(
-                                  "Percentage - ${_quizGradeList[0].percentage}",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 16.0,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 50,
-                      height: 50,
-                      margin: EdgeInsets.only(
-                          left: 15.0,right: 15.0),
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.amber,
-                          boxShadow: [
-                            BoxShadow(
-                              offset: Offset(0.0, 0.0),
-                              blurRadius: 5.0,
-                              spreadRadius: 2.0,
-                              color: Colors.black12,
-                            )
-                          ],
-                      ),
-                      child: Center(
-                        child: Text("Latest",
-                          style: TextStyle(color: Colors.white, fontSize: 12.0,fontWeight: FontWeight.bold,
-                                  shadows: <Shadow>[
-                                    Shadow(
-                                      offset: Offset(0.0, 1.0),
-                                      blurRadius: 3.0,
-                                      color: Color.fromARGB(255, 0, 0, 0),
-                                    ),
-                                    Shadow(
-                                      offset: Offset(0.0, 1.0),
-                                      blurRadius: 2.0,
-                                      color: Color.fromARGB(125, 0, 0, 255),
-                                    ),
-                                  ],
-                          ),
                         ),
                       ),
-                    ),
-                  ],
-                );
+                      Container(
+                        height: 80,
+                        width: 30,
+                        margin: EdgeInsets.only(
+                            top:23.0,left: 10),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(20),
+                            topLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                            bottomLeft: Radius.circular(20),
+                          ),
+                        color: Colors.white,
+                        ),
+                      ),
+                      Container(
+                        height: 60,
+                        width: 20,
+                        margin: EdgeInsets.only(
+                            top:33.0,left: 14),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(20),
+                            topLeft: Radius.circular(20),
+                            bottomRight: Radius.circular(20),
+                            bottomLeft: Radius.circular(20),
+                          ),
+                        color: mBlue,
+                        ),
+                        child: Center(
+                          child: Text((index+1).toString(), style: TextStyle(color:Colors.white,fontWeight: FontWeight.bold),),
+                        ),
+                      )
+                    ],
+                  );
+                }
+              ),
+            );
           }
         ),
       ),
