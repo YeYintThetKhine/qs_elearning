@@ -141,7 +141,7 @@ class _SplashScreenState extends State<SplashScreen>
                           opacity: _textAnimation.value,
                           child: Container(
                             child: Image.asset(
-                              'images/insurance.png',
+                              'images/logo_splash.png',
                               alignment: Alignment.bottomCenter,
                               width: 180.0,
                             ),
