@@ -9,8 +9,9 @@ class AutoLogoutMethod {
   static final AutoLogoutMethod autologout = AutoLogoutMethod._();
     Timer timer;
   void counter(context) {
+    print("counter activated!");
     timer.cancel();
-    timer = new Timer (Duration(minutes: 20), () {
+    timer = new Timer (Duration(minutes: 30), () {
     PersonDatabaseProvider.db.deleteAllPersons();
     Navigator.pushReplacement(
       context,
@@ -22,7 +23,7 @@ class AutoLogoutMethod {
 
     void counterstartpage(context) {
     print("counter activated!");
-    timer = new Timer (Duration(minutes: 20), () {
+    timer = new Timer (Duration(minutes: 30), () {
     PersonDatabaseProvider.db.deleteAllPersons();
     Navigator.pushReplacement(
       context,

@@ -8,6 +8,7 @@ import 'dart:convert';
 import '../URL/url.dart';
 import 'package:moodle_test/Model/model.dart';
 import 'package:flutter_widgets/flutter_widgets.dart';
+import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 
 class ModuleQuiz extends StatefulWidget {
   final token;
@@ -38,11 +39,16 @@ class _ModuleQuizState extends State<ModuleQuiz> {
   bool _finished = false;
   List<QuizResult> quizResults = [];
 
+  countertimer(){
+    AutoLogoutMethod.autologout.counter(context);
+  }
+
+
   @override
   void initState() {
     super.initState();
+    countertimer();
     _getQuiz();
-
   }
   final ItemScrollController itemScrollController = ItemScrollController();
   final ItemPositionsListener itemPositionListener = ItemPositionsListener.create();
@@ -51,7 +57,6 @@ class _ModuleQuizState extends State<ModuleQuiz> {
     var number = 0;
     var response;
     var url = '$urlLink/$token/quiz/${module.instance}/';
-    print(url);
       try {
         response = await http.get(url).then((data) {
           var result = json.decode(data.body);
@@ -343,7 +348,11 @@ class _ModuleQuizState extends State<ModuleQuiz> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GestureDetector(
+      onTap: (){
+        countertimer();
+      },
+    child:Scaffold(
       backgroundColor: mBlue,
       appBar: AppBar(
         backgroundColor: _loading==false
@@ -367,7 +376,6 @@ class _ModuleQuizState extends State<ModuleQuiz> {
               ),
             )
           : Container(
-              // margin: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
               child: CustomScrollView(
                 slivers: <Widget>[
                   SliverList(
@@ -400,6 +408,7 @@ class _ModuleQuizState extends State<ModuleQuiz> {
                                             :Colors.white),
                                       child: FlatButton(
                                         onPressed: (){
+                                          countertimer();
                                           setState(() {
                                             _quizpagenumber=index;
                                           });
@@ -493,6 +502,7 @@ class _ModuleQuizState extends State<ModuleQuiz> {
                                             if (_finished) {
                                               print('Cannot');
                                             } else {
+                                              countertimer();
                                               ansSelected(
                                                 _quizpagenumber,
                                                 index,
@@ -560,6 +570,7 @@ class _ModuleQuizState extends State<ModuleQuiz> {
                               if (_processing == false && _finished == false) {
                                 finishAttempt();
                               } else {
+                                countertimer();
                                 Navigator.of(context).pop();
                                 Navigator.push(
                                   context,
@@ -592,6 +603,7 @@ class _ModuleQuizState extends State<ModuleQuiz> {
                                 ),
                                 color: _processing ? Colors.white60 : Colors.amber,
                                 onPressed: () {
+                                  countertimer();
                                   previousQuiz();
                                 },
                                 child: Text(
@@ -610,8 +622,10 @@ class _ModuleQuizState extends State<ModuleQuiz> {
                                 color: _processing ? Colors.white60 : Colors.amber,
                                 onPressed: () {
                                   if (_processing == false && _finished == false) {
+                                    countertimer();
                                     finishAttempt();
                                   } else {
+                                    countertimer();
                                       Navigator.of(context).pop();
                                       Navigator.push(
                                         context,
@@ -655,6 +669,7 @@ class _ModuleQuizState extends State<ModuleQuiz> {
                               ),
                               color: _processing ? Colors.white60 : Colors.amber,
                               onPressed: () {
+                                countertimer();
                                 previousQuiz();
                               },
                               child: Text(
@@ -672,6 +687,7 @@ class _ModuleQuizState extends State<ModuleQuiz> {
                                 ),
                                 color: _processing ? Colors.white60 : Colors.amber,
                                 onPressed: () {
+                                  countertimer();
                                   nextQuiz();
                                 },
                                 child: Text(
@@ -688,6 +704,7 @@ class _ModuleQuizState extends State<ModuleQuiz> {
                 ],
               ),
             ),
+    ),
     );
   }
 }

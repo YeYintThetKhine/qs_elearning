@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:moodle_test/ThemeColors/colors.dart';
 import './userguide.dart';
+import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 
 class Help extends StatefulWidget {
   @override
@@ -8,9 +9,25 @@ class Help extends StatefulWidget {
 }
 
 class _HelpState extends State<Help> {
+
+  countertimer(){
+    AutoLogoutMethod.autologout.counter(context);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    countertimer();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return 
+    GestureDetector(
+      onTap: (){
+        countertimer();
+      },
+    child:Scaffold(
       backgroundColor: mBlue,
       appBar: AppBar(
         elevation: 0.0,
@@ -20,7 +37,18 @@ class _HelpState extends State<Help> {
       body:SingleChildScrollView(
         child:Column(
           children: <Widget>[
-            Container(
+            GestureDetector(
+              onTap: (){
+                countertimer();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        Userguide(),
+                  ),
+                );
+              },
+            child:Container(
               margin: EdgeInsets.symmetric(horizontal: 15,vertical: 5),
               height: 50,
               decoration: BoxDecoration(
@@ -31,16 +59,6 @@ class _HelpState extends State<Help> {
                 ),
                 borderRadius: BorderRadius.circular(5),
               ),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                          Userguide(),
-                    ),
-                  );
-                },
                 child: Row(
                   children:[
                     Container(
@@ -76,10 +94,11 @@ class _HelpState extends State<Help> {
                   ],
                 ),
               ),
-            ), 
+            ),
           ],
         )
       )
+    ),
     );
   }
 }

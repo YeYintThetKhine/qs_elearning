@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:moodle_test/ThemeColors/colors.dart';
 import './about.dart';
 import './terms_conditions.dart';
+import '../../Model/user.dart';
+import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
+
 
 class Setting extends StatefulWidget {
   @override
@@ -9,9 +12,18 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> {
+
+  countertimer(){
+    AutoLogoutMethod.autologout.counter(context);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GestureDetector(
+      onTap: (){
+        countertimer();
+      },
+    child:Scaffold(
       backgroundColor: mBlue,
       appBar: AppBar(
         elevation: 0.0,
@@ -67,7 +79,18 @@ class _SettingState extends State<Setting> {
                 ],
               ),
             ),
-            Container(
+            GestureDetector(
+              onTap: () {
+                countertimer();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        About(),
+                  ),
+                );
+              },
+            child:Container(
               margin: EdgeInsets.symmetric(horizontal: 15,vertical: 5),
               height: 50,
               decoration: BoxDecoration(
@@ -78,16 +101,6 @@ class _SettingState extends State<Setting> {
                 ),
                 borderRadius: BorderRadius.circular(5),
               ),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                          About(),
-                    ),
-                  );
-                },
                 child: Row(
                   children:[
                     Container(
@@ -122,9 +135,20 @@ class _SettingState extends State<Setting> {
                     ),
                   ],
                 ),
-              ),
             ),
-            Container(
+            ),
+            GestureDetector(
+              onTap: () {
+                countertimer();
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (BuildContext context) =>
+                        TermsConditions(),
+                  ),
+                );
+              },
+            child:Container(
               margin: EdgeInsets.symmetric(horizontal: 15,vertical: 5),
               height: 50,
               decoration: BoxDecoration(
@@ -135,16 +159,6 @@ class _SettingState extends State<Setting> {
                 ),
                 borderRadius: BorderRadius.circular(5),
               ),
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) =>
-                          TermsConditions(),
-                    ),
-                  );
-                },
                 child: Row(
                   children:[
                     Container(
@@ -179,11 +193,12 @@ class _SettingState extends State<Setting> {
                     ),
                   ],
                 ),
-              ),
+            ),
             ),  
           ],
         )
       )
+    ),
     );
   }
 }

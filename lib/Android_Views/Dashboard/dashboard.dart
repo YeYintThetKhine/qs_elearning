@@ -48,7 +48,7 @@ class _DashBoardState extends State<DashBoard> {
     var url = '$urlLink/$token/usergrades/$uid';
     try {
       response = await http.get(url).timeout(
-            Duration(seconds: 20),
+        Duration(seconds: 20),
       );
     } catch (e) {
 
@@ -58,7 +58,6 @@ class _DashBoardState extends State<DashBoard> {
     }
     else{
       await http.get(url).then((result) {
-        print(url);
         var categoryGrades = json.decode(result.body);
         for (var categoryGrade in categoryGrades['grades']) {
           _categoryQuizList.add(GradeByCategory(
@@ -261,23 +260,30 @@ class _DashBoardState extends State<DashBoard> {
                               },
                             ),
                 ),
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Grade History',
-                    style: TextStyle(color: Colors.white, fontSize: 20.0),
+                GestureDetector(
+                  onTap: countertimer(),
+                  child: Column(
+                    children:[
+                      Container(
+                        padding:
+                            EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          'Grade History',
+                          style: TextStyle(color: Colors.white, fontSize: 20.0),
+                        ),
+                      ),
+                      _loading_gradehistory == false
+                      ?Container(
+                        child: gradeHistoryWidget(_categoryQuizList,token,context),
+                      )
+                      :Container(
+                        padding: EdgeInsets.only(
+                            top: 10.0, left: 32.0, bottom: 10.0, right: 10.0),
+                        child: EventLoading(),
+                      ),
+                    ],
                   ),
-                ),
-                _loading_gradehistory == false
-                ?Container(
-                  child: gradeHistoryWidget(_categoryQuizList,token,context),
-                )
-                :Container(
-                  padding: EdgeInsets.only(
-                      top: 10.0, left: 32.0, bottom: 10.0, right: 10.0),
-                  child: EventLoading(),
                 ),
                 // getRecent == true
                 //     ? Container(

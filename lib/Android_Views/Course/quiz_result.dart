@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:moodle_test/Model/model.dart';
 import '../../ThemeColors/colors.dart';
 
-
 import 'package:flutter/cupertino.dart';
 import '../../Model/model.dart';
+import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 
 class ShowQuizResult extends StatefulWidget {
 
@@ -83,18 +83,24 @@ class _ShowQuizResultState extends State<ShowQuizResult> {
     });
   }
 
+
+  countertimer(){
+    AutoLogoutMethod.autologout.counter(context);
+  }
+
   @override
   void initState() {
     super.initState();
-    for(var i = 0 ; i < quizResult.length;i++){
-      print(quizResult[i].choseAnswer);
-    }
-
+    countertimer();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GestureDetector( 
+      onTap: (){
+        countertimer();
+      },
+    child:Scaffold(
         backgroundColor: mBlue,
         appBar: AppBar(
           backgroundColor: mBlue,
@@ -123,6 +129,7 @@ class _ShowQuizResultState extends State<ShowQuizResult> {
                   ),
                   color: Colors.amber,
                   onPressed: () {
+                    countertimer();
                     showhideQuizAnswer();
                   },
                   child: 
@@ -256,6 +263,7 @@ class _ShowQuizResultState extends State<ShowQuizResult> {
         //     },
         //   )
         // ],
+    ),
       );
   }
 }
