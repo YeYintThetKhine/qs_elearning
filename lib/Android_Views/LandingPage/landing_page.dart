@@ -13,6 +13,7 @@ import '../URL/url.dart';
 import '../../Model/user.dart';
 import 'package:moodle_test/Android_Views/Category/category_list.dart';
 import 'package:moodle_test/DB/db.dart';
+import 'package:connectivity/connectivity.dart';
 
 class LandingPage extends StatefulWidget {
   @override
@@ -25,11 +26,11 @@ class _LandingPageState extends State<LandingPage> {
   TextEditingController _username = TextEditingController();
   TextEditingController _password = TextEditingController();
   bool _signingIn = false;
+  var subscription;
 
   accCheck() async{
-    PersonDatabaseProvider.db.getAllPersons().then((value) {
+    await PersonDatabaseProvider.db.getAllPersons().then((value) {
       if(value.length != 0){
-            PersonDatabaseProvider.db.getAllPersons().then((value) {
               token = value[0].token;
               currentUser = User(
                 id: value[0].id,
@@ -41,8 +42,6 @@ class _LandingPageState extends State<LandingPage> {
                 position: value[0].position,
                 type: value[0].type,
               );  
-            }
-            );
             Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => CategoryList()),
                 ModalRoute.withName('/DashBoard')); 
@@ -50,7 +49,11 @@ class _LandingPageState extends State<LandingPage> {
       else{
 
       }
-    });
+    }).then((value) {
+      print('completed with value $value');
+      }, onError: (error) {
+        print('completed with error $error');
+      });
   }
 
   accLogin() async {
@@ -144,6 +147,12 @@ class _LandingPageState extends State<LandingPage> {
     @override
   void initState() {
     super.initState();
+
+
+  subscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+    // Got a new connectivity status!
+  });
+
     accCheck();
   }
 
@@ -382,14 +391,14 @@ class _LandingPageState extends State<LandingPage> {
                     ),
                   ),
                 ),
-                Container(
-                  alignment: Alignment.center,
-                  child: Image.asset(
-                    'images/logo_new.png',
-                    width: 250,
-                    height: 250,
-                  ),
-                )
+                // Container(
+                //   alignment: Alignment.center,
+                //   child: Image.asset(
+                //     'images/logonew.png',
+                //     width: 250,
+                //     height: 250,
+                //   ),
+                // )
               ],
             ),
           ),

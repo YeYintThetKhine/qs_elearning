@@ -26,7 +26,7 @@ dependencies:
   percent_indicator: "^1.0.16"
   crypto: ^2.0.6
   video_player: ^0.10.1+3
-  connectivity: ^0.4.3+2
+  connectivity: ^0.4.6+2
   intl: ^0.15.8
   table_calendar: ^1.2.5
   flutter_widgets: ^0.1.9
@@ -54,27 +54,7 @@ flutter:
   #  - images/a_dot_burr.jpeg
   #  - images/a_dot_ham.jpeg
   assets:
-    - images/logo.png
-    - images/searchbg.jpg
-    - images/placeholder.png
-    - images/loginpic.png
-    - images/category.png
-    - images/learning-wallpaper.png
-    - images/wallpaper-1.png
-    - images/sample.jpg
-    - images/menu.png
-    - images/topic.png
-    - images/no_event.png
-    - images/quiz.png
-    - images/book_stack.png
-    - images/insurance.png
-    - images/1.png
-    - images/2.png
-    - images/3.png
-    - images/4.png
-    - images/5.png
-    - images/logo_new.png
-    - images/logo_splash.png
+    - images/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.io/assets-and-images/#resolution-aware.

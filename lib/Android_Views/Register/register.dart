@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../ThemeColors/colors.dart';
-import '../../Clipper/clips.dart';
 import 'package:http/http.dart' as http;
 import '../URL/url.dart';
+import 'dart:convert';
+import '../../Model/model.dart';
 
 class Register extends StatelessWidget {
   @override
@@ -18,11 +19,17 @@ class Register extends StatelessWidget {
 }
 
 class Registry extends StatefulWidget {
+  
   @override
   _RegistryState createState() => _RegistryState();
 }
 
 class _RegistryState extends State<Registry> {
+
+  var errorResponse;
+  String errorType;
+  String errorMessage;
+
   static const List<String> deparments = [
     'CB Insurance',
     'CB Bank',
@@ -78,10 +85,11 @@ class _RegistryState extends State<Registry> {
   TextEditingController _positionController = TextEditingController();
 
   _signUp() async {
-    setState(() {
-      _loading = true;
-    });
+
     if (_regFormKey.currentState.validate()) {
+      setState(() {
+        errorType="";
+      });
       var email = _emailController.text;
       var username = _usernameController.text;
       var firstName = _nameController.text;
@@ -98,9 +106,18 @@ class _RegistryState extends State<Registry> {
           "$urlLink/register/$email/$username/$firstName/$lastName/$password/$pos/$dept/$type/$branch/";
       print(url);
       await http.get(url).then((data) {
+        errorResponse=json.decode(data.body);
+
+        print(errorResponse);
+        if(errorResponse['success'] == false){
+          setState(() {
+            errorType=errorResponse['warnings'][0]['item'];
+            errorMessage=errorResponse['warnings'][0]['message'];
+          });
+          print(errorType);
+        }
         setState(() {
           _loading = false;
-          // Navigator.of(context).pop();
         });
       }).then((value) {
     print('completed with value $value');
@@ -142,15 +159,22 @@ class _RegistryState extends State<Registry> {
                   //input for Email here
                   TextFormField(
                     controller: _emailController,
-                    validator: (data) =>
-                        _emailController.text.length == 0 ? 'Required' : null,
+                    validator: (data) =>_emailController.text.length == 0 
+                      ? 'Required'
+                          : null,
                     decoration: InputDecoration(
                         labelText: 'Email',
+                        enabledBorder: UnderlineInputBorder(      
+                        borderSide: BorderSide(color: errorType=='email'?Colors.red:Colors.grey),   
+                        ),  
                         alignLabelWithHint: true,
                         labelStyle: _labelStyle,
-                        helperText: 'Email is required for verification',
+                        helperText: errorType=='email'?
+                        '$errorMessage'
+                        :'Email is required for verification',
+                        helperStyle: TextStyle(color: errorType=='email'?Colors.red:Colors.grey),
                         focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: mBlue, width: 2.0))),
+                            borderSide: BorderSide(color: errorType=='email'?Colors.red:mBlue, width: 2.0))),
                   ),
 
                   //input for Username here
@@ -161,11 +185,17 @@ class _RegistryState extends State<Registry> {
                         : null,
                     decoration: InputDecoration(
                         labelText: 'Username',
+                        enabledBorder: UnderlineInputBorder(      
+                        borderSide: BorderSide(color: errorType=='username'?Colors.red:Colors.grey),   
+                        ),  
                         alignLabelWithHint: true,
                         labelStyle: _labelStyle,
-                        helperText: 'This is what you will use to log in',
+                        helperText: errorType=='username'?
+                        '$errorMessage' 
+                        :'This is what you will use to log in',
+                        helperStyle: TextStyle(color: errorType=='username'?Colors.red:Colors.grey),
                         focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: mBlue, width: 2.0))),
+                            borderSide: BorderSide(color: errorType=='username'?Colors.red:mBlue, width: 2.0))),
                   ),
 
                   //input for Name here
@@ -178,7 +208,7 @@ class _RegistryState extends State<Registry> {
                         alignLabelWithHint: true,
                         labelStyle: _labelStyle,
                         helperText:
-                            'This name that will identify you in your courses\nCANNOT BE CHANGED LATER',
+                          'This name that will identify you in your courses\nCANNOT BE CHANGED LATER',
                         focusedBorder: UnderlineInputBorder(
                             borderSide: BorderSide(color: mBlue, width: 2.0))),
                   ),
@@ -192,12 +222,17 @@ class _RegistryState extends State<Registry> {
                     obscureText: true,
                     decoration: InputDecoration(
                         labelText: 'Password',
+                        enabledBorder: UnderlineInputBorder(      
+                        borderSide: BorderSide(color: errorType=='password'?Colors.red:Colors.grey),   
+                        ),  
                         alignLabelWithHint: true,
                         labelStyle: _labelStyle,
-                        helperText:
-                            'Password must contain at least 1 special character, 1 capital letter and 1 number.',
+                        helperText:errorType=='password'?
+                        '$errorMessage'
+                        :'Password must be 8 characters long.',
+                        helperStyle: TextStyle(color: errorType=='password'?Colors.red:Colors.grey),
                         focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: mBlue, width: 2.0))),
+                            borderSide: BorderSide(color: errorType=='password'?Colors.red:mBlue, width: 2.0))),
                   ),
 
                   //input for Password again for confirmation

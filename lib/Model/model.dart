@@ -267,3 +267,13 @@ class DetailGrades {
     this.percentage,
   });
 }
+
+class RegisterValidation {
+  String errorType;
+  String errorMessage;
+
+  RegisterValidation({
+    this.errorType,
+    this.errorMessage,
+  });
+}
