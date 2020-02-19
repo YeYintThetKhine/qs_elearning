@@ -9,21 +9,24 @@ import '../URL/url.dart';
 import 'package:moodle_test/Model/model.dart';
 import 'package:flutter_widgets/flutter_widgets.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
+import 'dart:async';
 
 class ModuleQuiz extends StatefulWidget {
   final token;
   final module;
+  int timelimit;
 
-  ModuleQuiz({this.module, this.token});
+  ModuleQuiz({this.module, this.token, this.timelimit});
   @override
   _ModuleQuizState createState() =>
-      _ModuleQuizState(module: module, token: token);
+      _ModuleQuizState(module: module, token: token, timelimit: timelimit);
 }
 
 class _ModuleQuizState extends State<ModuleQuiz> {
   Module module;
   String token;
-  _ModuleQuizState({this.module, this.token});
+  int timelimit;
+  _ModuleQuizState({this.module, this.token, this.timelimit});
 
   String quizQuestion = '';
   bool _loading = true;
@@ -43,13 +46,50 @@ class _ModuleQuizState extends State<ModuleQuiz> {
     AutoLogoutMethod.autologout.counter(context);
   }
 
+  Timer quiztimer;
+  void counter(context) {
+    quiztimer = new Timer (Duration(seconds: timelimit), () {
+      _showAlertDialog('Time Up', 'You have exceeded the quiz time. Please take the quiz again.',context);
+    });
+  }
+
+
+  void _showAlertDialog(String title, String message,context) {
+
+    AlertDialog alertDialog = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: <Widget>[
+        FlatButton(
+          onPressed: (){
+            Navigator.pop(context);
+            Navigator.pop(context);
+          }, 
+          child: Text('OK'),
+        ),
+      ],
+    );
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (_) => alertDialog
+    );
+  }
 
   @override
   void initState() {
     super.initState();
+    counter(context);
     countertimer();
     _getQuiz();
   }
+
+  @override
+  dispose() {
+    super.dispose();
+    quiztimer.cancel();
+  }
+
   final ItemScrollController itemScrollController = ItemScrollController();
   final ItemPositionsListener itemPositionListener = ItemPositionsListener.create();
 
@@ -60,7 +100,6 @@ class _ModuleQuizState extends State<ModuleQuiz> {
       try {
         response = await http.get(url).then((data) {
           var result = json.decode(data.body);
-          print(result['message']);
         });
       } catch (e) {
         print("You can only answer once");

@@ -20,6 +20,7 @@ import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 class CourseModules extends StatefulWidget {
   final topic;
   final courseId;
+
   CourseModules({this.topic, this.courseId});
   @override
   _CourseModulesState createState() =>
@@ -32,6 +33,10 @@ class _CourseModulesState extends State<CourseModules> {
   _CourseModulesState({this.topic, this.courseId});
 
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
+
+  List<QuizAdditionalDetail> _quizDetailList = [];
+
+  int quiznum = 0;
 
   counter_timer(){
     AutoLogoutMethod.autologout.counter(context);
@@ -58,30 +63,79 @@ class _CourseModulesState extends State<CourseModules> {
 
   Future<Topic> getModules() async {
     var modUrl = '$urlLink/$token/course/$courseId/section/${topic.id}/';
-    print(modUrl);
-    await http.get(modUrl).then((response) {
+    await http.get(modUrl).then((response) async{
       var mods = json.decode(response.body);
+
+    String uid = currentUser.id;
+    var quizAdditionalUrl = '$urlLink/$token/quizinfo/course/$courseId/user/$uid/';
+    print(quizAdditionalUrl);
+    await http.get(quizAdditionalUrl).then((response) {
+      var data = json.decode(response.body);
+        for (var quiz in data['quiz_info']) {
+          _quizDetailList.add(
+            QuizAdditionalDetail(
+              quizid:quiz['quizid'],
+              courseid:quiz['courseid'],
+              moduleid:quiz['moduleid'],
+              name:quiz['name'],
+              timelimit:quiz['timelimit'],
+              maxattempts:quiz['maxattempts'],
+              usercurrentattempts:quiz['usercurrentattempts'],
+            ),
+          );
+        }
+    });
+
       if (mods[0]['modules'].length > 0) {
         List<Module> _moduleList = [];
         for (var module in mods[0]['modules']) {
-          _moduleList.add(
-            Module(
-              id: module['id'].toString(),
-              instance: module['instance'].toString(),
-              moduleType: module['modname'],
-              name: module['name'],
-              url: module['contents'] != null
-                  ? module['contents'][0]['fileurl']
-                  : null,
-              completeStatus: module['completiondata'] == null
-                  ? 0
-                  : module['completiondata']['state'],
-              completeTime: module['completiondata'] == null
-                  ? 0
-                  : module['completiondata']['timecompleted'],
-              available: module['availabilityinfo'],
-            ),
-          );
+          if(module['modname']=="quiz"){
+            _moduleList.add(
+              Module(
+                id: module['id'].toString(),
+                instance: module['instance'].toString(),
+                moduleType: module['modname'],
+                name: module['name'],
+                url: module['contents'] != null
+                    ? module['contents'][0]['fileurl']
+                    : null,
+                completeStatus: module['completiondata'] == null
+                    ? 0
+                    : module['completiondata']['state'],
+                completeTime: module['completiondata'] == null
+                    ? 0
+                    : module['completiondata']['timecompleted'],
+                available: module['availabilityinfo'],
+                timelimit:_quizDetailList[quiznum].timelimit,
+                maxattempts:_quizDetailList[quiznum].maxattempts,
+                usercurrentattempts:_quizDetailList[quiznum].usercurrentattempts,
+              ),
+            );
+            quiznum++;
+          }
+          else{
+            _moduleList.add(
+              Module(
+                id: module['id'].toString(),
+                instance: module['instance'].toString(),
+                moduleType: module['modname'],
+                name: module['name'],
+                url: module['contents'] != null
+                    ? module['contents'][0]['fileurl']
+                    : null,
+                completeStatus: module['completiondata'] == null
+                    ? 0
+                    : module['completiondata']['state'],
+                completeTime: module['completiondata'] == null
+                    ? 0
+                    : module['completiondata']['timecompleted'],
+                available: module['availabilityinfo'],
+                timelimit:-1,
+                maxattempts:-1,
+                usercurrentattempts:-1,
+              ),
+            );
+          }
         }
         topic = Topic(
           id: mods[0]['id'].toString(),
@@ -125,7 +179,7 @@ class _CourseModulesState extends State<CourseModules> {
         });
   }
 
-  _startQuiz(Module module) {
+  _startQuiz(Module module,int timelimit) {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -142,6 +196,7 @@ class _CourseModulesState extends State<CourseModules> {
                 ),
                 color: mBlue,
                 onPressed: () {
+                  print(timelimit);
                   Navigator.of(context).pop();
                   Navigator.push(
                     context,
@@ -149,6 +204,7 @@ class _CourseModulesState extends State<CourseModules> {
                       builder: (context) => ModuleQuiz(
                         module: module,
                         token: token,
+                        timelimit: timelimit,
                       ),
                     ),
                   );
@@ -166,6 +222,28 @@ class _CourseModulesState extends State<CourseModules> {
                   'Cancel',
                   style: TextStyle(color: mBlue),
                 ),
+              )
+            ],
+          );
+        });
+  }
+
+  _quizAttemptCheckDialog(int maxattempt) {
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            title: Text('Attempt max out'),
+            content: Text('You can only attempt maximum $maxattempt times'),
+            actions: <Widget>[
+              FlatButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: Text('Close'),
               )
             ],
           );
@@ -300,7 +378,9 @@ class _CourseModulesState extends State<CourseModules> {
                                   ),
                                 );
                               } else {
-                                _startQuiz(topic.modules[i]);
+                                topic.modules[i].usercurrentattempts == topic.modules[i].maxattempts
+                                ?_quizAttemptCheckDialog(topic.modules[i].maxattempts)
+                                :_startQuiz(topic.modules[i],topic.modules[i].timelimit);
                               }
                             }
                           },
@@ -332,6 +412,7 @@ class _CourseModulesState extends State<CourseModules> {
                                           ),
                                   ),
                                   Container(
+                                    // width: MediaQuery.of(context).size.width-200,
                                     padding: EdgeInsets.only(left: 8.0),
                                     child: Text(
                                       topic.modules[i].name,
@@ -339,6 +420,114 @@ class _CourseModulesState extends State<CourseModules> {
                                           color: Colors.white70,
                                           fontSize: 16.0),
                                     ),
+                                  ),
+                                  topic.modules[i].maxattempts == -1
+                                  ?Container()
+                                  :Container(
+                                    margin: EdgeInsets.only(left:10),
+                                    child: Row(
+                                      children:[
+                                        Container(
+                                          width: 1,
+                                          height: 35,
+                                          margin: EdgeInsets.only(right:5),
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 0,
+                                            ),
+                                            borderRadius: BorderRadius.circular(5),
+                                          ),
+                                        ),
+                                        // Container(
+                                        //   margin: EdgeInsets.only(right:5),
+                                        //   color:mBlue,
+                                        //   child:Center(
+                                        //     child: Text(
+                                        //     'Attempt',
+                                        //     style: TextStyle(
+                                        //         color: Colors.amber,
+                                        //         fontSize: 16.0,
+                                        //         fontWeight: FontWeight.bold),
+                                        //     ),
+                                        //   ),
+                                        // ),
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical: 3,horizontal: 3),
+                                          decoration: BoxDecoration(
+                                              color: Colors.amber,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2,
+                                              ),
+                                              borderRadius: BorderRadius.circular(5),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                            '${topic.modules[i].usercurrentattempts.toString()}/${topic.modules[i].maxattempts.toString()}',
+                                            style: TextStyle(
+                                                color: mBlue,
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ),
+                                        // Stack(
+                                        //   children: <Widget>[
+                                        //     Container(
+                                        //       margin: EdgeInsets.only(top:10),
+                                        //       padding: EdgeInsets.only(left:5,right: 10,top:5,bottom:5),
+                                        //       color:mBlue,
+                                        //       child:Center(
+                                        //         child: Text(
+                                        //         'Attempt',
+                                        //         style: TextStyle(
+                                        //             color: Colors.amber,
+                                        //             fontSize: 16.0,
+                                        //             fontWeight: FontWeight.bold),
+                                        //         ),
+                                        //       ),
+                                        //     ),
+                                        //     Container(
+                                        //       padding: EdgeInsets.symmetric(vertical: 3,horizontal: 3),
+                                        //       margin: EdgeInsets.only(left:65,bottom:25),
+                                        //       decoration: BoxDecoration(
+                                        //           color: Colors.amber,
+                                        //           border: Border.all(
+                                        //             color: Colors.white,
+                                        //             width: 2,
+                                        //           ),
+                                        //           borderRadius: BorderRadius.circular(5),
+                                        //       ),
+                                        //       child: Center(
+                                        //         child: Text(
+                                        //         '${topic.modules[i].usercurrentattempts.toString()}/${topic.modules[i].maxattempts.toString()}',
+                                        //         style: TextStyle(
+                                        //             color: mBlue,
+                                        //             fontSize: 16.0,
+                                        //             fontWeight: FontWeight.bold),
+                                        //         ),
+                                        //       ),
+                                        //     ),
+                                        //   ],
+                                        // ),
+                                      ]
+                                    ),
+                                    // decoration: BoxDecoration(
+                                    //   color: Colors.white,
+                                    //   border: Border.all(
+                                    //     color: Colors.white,
+                                    //     width: 0,
+                                    //   ),
+                                    //   borderRadius: BorderRadius.circular(5),
+                                    // ),
+                                    // child: Text(
+                                    //   topic.modules[i].maxattempts.toString(),
+                                    //   style: TextStyle(
+                                    //       color: Colors.white70,
+                                    //       fontSize: 16.0),
+                                    // ),
                                   ),
                                   topic.modules[i].available == null
                                       ? Container()

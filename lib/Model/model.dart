@@ -155,6 +155,9 @@ class Module {
   int completeStatus;
   int completeTime;
   String available;
+  int timelimit;
+  int maxattempts;
+  int usercurrentattempts;
 
   Module({
     @required this.id,
@@ -165,6 +168,9 @@ class Module {
     @required this.completeStatus,
     @required this.completeTime,
     @required this.available,
+    this.timelimit,
+    this.maxattempts,
+    this.usercurrentattempts,
   });
 }
 
@@ -268,12 +274,22 @@ class DetailGrades {
   });
 }
 
-class RegisterValidation {
-  String errorType;
-  String errorMessage;
+class QuizAdditionalDetail {
+  int quizid;
+  int courseid;
+  int moduleid;
+  String name;
+  int timelimit;
+  int maxattempts;
+  int usercurrentattempts;
 
-  RegisterValidation({
-    this.errorType,
-    this.errorMessage,
+  QuizAdditionalDetail({
+    this.quizid,
+    this.courseid,
+    this.moduleid,
+    this.name,
+    this.timelimit,
+    this.maxattempts,
+    this.usercurrentattempts,
   });
 }
