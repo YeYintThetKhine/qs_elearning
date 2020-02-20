@@ -308,8 +308,7 @@ Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
               child: Row(
                 children: [
                   Container(
-                    width: 50.0,
-                    height: 50.0,
+                    padding: EdgeInsets.symmetric(horizontal: 7,vertical: 7),
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10.0),
                       boxShadow: [
