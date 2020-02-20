@@ -78,17 +78,41 @@ _showBottomSheet(BuildContext context, List<Event> events) {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Container(
-                    alignment: Alignment.center,
-                    padding: EdgeInsets.fromLTRB(24.0, 16.0, 0.0, 8.0),
-                    height: 50.0,
-                    child: Text(
-                      'Today Events',
-                      style: TextStyle(
-                        color: Color(0xFFFFFFFF),
-                        fontSize: 18.0,
+                  Row(
+                    children: <Widget>[
+                      Container(
+                        margin: EdgeInsets.only(right:5),
+                        alignment: Alignment.center,
+                        padding: EdgeInsets.fromLTRB(24.0, 16.0, 0.0, 8.0),
+                        height: 50.0,
+                        child: Text(
+                          'Today Events',
+                          style: TextStyle(
+                            color: Color(0xFFFFFFFF),
+                            fontSize: 18.0,
+                          ),
+                        ),
                       ),
-                    ),
+                      events.length == 0
+                      ?Container()
+                      :Container(
+                        padding: EdgeInsets.symmetric(horizontal: 5,vertical: 3),
+                        decoration: BoxDecoration(
+                          color: Colors.amber,
+                          borderRadius:
+                              BorderRadius.circular(5.0),
+                          border: Border.all(
+                            width: 1.5,
+                            color: Colors.amber,
+                          ),
+                        ),
+                        child: Text(
+                          '${events.length}',
+                          style: TextStyle(
+                              color: mBlue, fontSize: 15.0, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
                   ),
                   Container(
                     margin: EdgeInsets.only(right: 8.0, top: 8.0),
@@ -119,8 +143,7 @@ _showBottomSheet(BuildContext context, List<Event> events) {
                               child: Row(
                                 children: [
                                   Container(
-                                    width: 50.0,
-                                    height: 50.0,
+                                    padding: EdgeInsets.symmetric(horizontal: 7.0,vertical: 7.0),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10.0),
                                       boxShadow: [
@@ -263,12 +286,38 @@ Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              'Today Events',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20.0,
-              ),
+            Row(
+              children: <Widget>[
+                Container(
+                  margin: EdgeInsets.only(right:5),
+                  child: Text(
+                    'Today Events',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20.0,
+                    ),
+                  ),
+                ),
+                eventList.length == 0
+                ?Container()
+                :Container(
+                  padding: EdgeInsets.symmetric(horizontal: 5,vertical: 3),
+                  decoration: BoxDecoration(
+                    color: Colors.amber,
+                    borderRadius:
+                        BorderRadius.circular(5.0),
+                    border: Border.all(
+                      width: 1.5,
+                      color: Colors.amber,
+                    ),
+                  ),
+                  child: Text(
+                    '${eventList.length}',
+                    style: TextStyle(
+                        color: mBlue, fontSize: 15.0, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
             ),
             FlatButton(
                 highlightColor: Colors.transparent,
