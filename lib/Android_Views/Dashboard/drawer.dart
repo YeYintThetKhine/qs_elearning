@@ -9,6 +9,7 @@ import '../Settings/settings.dart';
 import '../Help/help.dart';
 import 'package:moodle_test/DB/db.dart';
 import 'package:connectivity/connectivity.dart';
+import '../../Model/user.dart';
 
 
 
@@ -170,11 +171,22 @@ Widget drawer(User user, BuildContext context) {
                             Theme.of(context).platform == TargetPlatform.iOS
                                 ? Colors.blue
                                 : Colors.white,
-                        child: Image.asset(
-                          'images/placeholder.png',
-                          fit: BoxFit.cover,
-                          height: 52.0,
-                        )),
+                        child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(40.0)),
+                          image: new DecorationImage(
+                            image: new NetworkImage(
+                                    currentUser.imgUrl + '?token=$token'),
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        ),
+                        // child: Image.asset(
+                        //   'images/placeholder.png',
+                        //   fit: BoxFit.cover,
+                        //   height: 52.0,
+                        // )
+                        ),
                   ),
                   ListTile(
                     onTap: (){
