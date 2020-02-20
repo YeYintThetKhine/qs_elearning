@@ -284,14 +284,14 @@ Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
                         children: [
                           Icon(
                             Icons.arrow_upward,
-                            color: mBlue,
+                            color: Colors.white,
                             size: 14.0,
                           ),
                           Padding(
                             padding: const EdgeInsets.only(left: 4.0),
                             child: Text(
                               'More',
-                              style: TextStyle(color: mBlue),
+                              style: TextStyle(color: Colors.white),
                             ),
                           ),
                         ],

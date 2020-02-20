@@ -210,7 +210,7 @@ class _CategoryListState extends State<CategoryList> {
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           return Container(
-                            height: 225.0,
+                            height: 233.5,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[
@@ -219,10 +219,36 @@ class _CategoryListState extends State<CategoryList> {
                                     vertical: 8.0,
                                     horizontal: 16.0,
                                   ),
-                                  child: Text(
-                                    _categoryList[index].name,
-                                    style: TextStyle(
-                                        color: Colors.white, fontSize: 20.0),
+                                  child: Row(
+                                    children: <Widget>[
+                                      Container(
+                                        padding: EdgeInsets.only(right:5),
+                                        child: Text(
+                                          '${_categoryList[index].name}',
+                                          style: TextStyle(
+                                              color: Colors.white, fontSize: 20.0),
+                                        ),
+                                      ),
+                                      _categoryList[index].courses.length==0
+                                      ?Container()
+                                      :Container(
+                                        padding: EdgeInsets.symmetric(horizontal: 5,vertical: 3),
+                                        decoration: BoxDecoration(
+                                          color: Colors.amber,
+                                          borderRadius:
+                                              BorderRadius.circular(5.0),
+                                          border: Border.all(
+                                            width: 1.5,
+                                            color: Colors.amber,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '${_categoryList[index].courses.length}',
+                                          style: TextStyle(
+                                              color: mBlue, fontSize: 15.0, fontWeight: FontWeight.bold),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
                                 Expanded(

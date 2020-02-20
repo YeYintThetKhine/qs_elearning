@@ -189,22 +189,6 @@ Widget drawer(User user, BuildContext context) {
                         ),
                   ),
                   ListTile(
-                    onTap: (){
-                      eventtype="dashboard";
-                      _connectionCheck(context);
-                    },
-                    title: Text(
-                      "Dashboard",
-                      style: TextStyle(
-                        color: mWhite,
-                      ),
-                    ),
-                    leading: Icon(
-                      Icons.dashboard,
-                      color: mWhite,
-                    ),
-                  ),
-                  ListTile(
                     title: Text(
                       "Categories",
                       style: TextStyle(
@@ -219,6 +203,22 @@ Widget drawer(User user, BuildContext context) {
                       eventtype="categories";
                       _connectionCheck(context);
                     },
+                  ),
+                  ListTile(
+                    onTap: (){
+                      eventtype="dashboard";
+                      _connectionCheck(context);
+                    },
+                    title: Text(
+                      "Dashboard",
+                      style: TextStyle(
+                        color: mWhite,
+                      ),
+                    ),
+                    leading: Icon(
+                      Icons.dashboard,
+                      color: mWhite,
+                    ),
                   ),
                   ListTile(
                     onTap: () {

@@ -149,6 +149,9 @@ class _RegistryState extends State<Registry> {
       print('completed with value $value');
     }, onError: (error) {
       print('completed with error $error');
+        setState(() {     
+          _loading = false;
+        });
     });
       } else {
         setState(() {     

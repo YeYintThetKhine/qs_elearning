@@ -31,6 +31,7 @@ class _DashBoardState extends State<DashBoard> {
   bool _loading = true;
   bool _loading_gradehistory = true;
   bool _noCourse = false;
+  bool _noGrade = false;
   bool getRecent = false;
   bool noRecent = false;
   bool _getEvents = false;
@@ -63,18 +64,27 @@ class _DashBoardState extends State<DashBoard> {
     else{
       await http.get(url).then((result) {
         var categoryGrades = json.decode(result.body);
-        for (var categoryGrade in categoryGrades['grades']) {
-          _categoryQuizList.add(GradeByCategory(
-            categoryname: categoryGrade['categoryname'],
-            coursename: categoryGrade['coursename'],
-            courseid: categoryGrade['courseid'],
-            mark: categoryGrade['mark'],
-            gradeCategoryImg: categoryGrade['imageurl'],
-          ));
-        }
-        setState(() {
-          _loading_gradehistory = false;
-        });
+        print(categoryGrades['grades'].length);
+          if (categoryGrades['grades'].length == 0) {
+            setState(() {
+              _noGrade = true;
+              _loading_gradehistory = false;
+            });
+            print(_noGrade);
+          } else {
+              for (var categoryGrade in categoryGrades['grades']) {
+                _categoryQuizList.add(GradeByCategory(
+                  categoryname: categoryGrade['categoryname'],
+                  coursename: categoryGrade['coursename'],
+                  courseid: categoryGrade['courseid'],
+                  mark: categoryGrade['mark'],
+                  gradeCategoryImg: categoryGrade['imageurl'],
+                ));
+              }
+              setState(() {
+                _loading_gradehistory = false;
+              });
+          }
       }).then((value) {
       print('completed with value $value');
       }, onError: (error) {
@@ -271,14 +281,36 @@ class _DashBoardState extends State<DashBoard> {
             // var dev = MediaQuery.of(context).size;
             return Column(
               children: <Widget>[
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(vertical: 16.0, horizontal: 16.0),
-                  alignment: Alignment.centerLeft,
-                  child: Text(
-                    'Enrolled Course Overview',
-                    style: TextStyle(color: Colors.white, fontSize: 20.0),
-                  ),
+                Row(
+                  children: <Widget>[
+                    Container(
+                      padding: EdgeInsets.only(top:16.0,bottom:16.0,left:16.0,right:10.0),
+                      alignment: Alignment.centerLeft,
+                      child: Text(
+                        'Enrolled Course Overview',
+                        style: TextStyle(color: Colors.white, fontSize: 20.0),
+                      ),
+                    ),
+                    _courseList.length == 0
+                    ?Container()
+                    :Container(
+                      padding: EdgeInsets.symmetric(horizontal: 5,vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.amber,
+                        borderRadius:
+                            BorderRadius.circular(5.0),
+                        border: Border.all(
+                          width: 1.5,
+                          color: Colors.amber,
+                        ),
+                      ),
+                      child: Text(
+                        '${_courseList.length}',
+                        style: TextStyle(
+                            color: mBlue, fontSize: 15.0, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                  ],
                 ),
                 Container(
                   height: 175.0,
@@ -314,18 +346,58 @@ class _DashBoardState extends State<DashBoard> {
                   onTap: countertimer(),
                   child: Column(
                     children:[
-                      Container(
-                        padding:
-                            EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
-                        alignment: Alignment.centerLeft,
-                        child: Text(
-                          'Grade History',
-                          style: TextStyle(color: Colors.white, fontSize: 20.0),
-                        ),
+                      Row(
+                        children: <Widget>[
+                          Container(
+                            padding:
+                                EdgeInsets.symmetric(vertical: 10.0, horizontal: 16.0),
+                            alignment: Alignment.centerLeft,
+                            child: Text(
+                              'Grade History',
+                              style: TextStyle(color: Colors.white, fontSize: 20.0),
+                            ),
+                          ),
+                          _categoryQuizList.length == 0
+                          ?Container()
+                          :Container(
+                            padding: EdgeInsets.symmetric(horizontal: 5,vertical: 3),
+                            decoration: BoxDecoration(
+                              color: Colors.amber,
+                              borderRadius:
+                                  BorderRadius.circular(5.0),
+                              border: Border.all(
+                                width: 1.5,
+                                color: Colors.amber,
+                              ),
+                            ),
+                            child: Text(
+                              '${_categoryQuizList.length}',
+                              style: TextStyle(
+                                  color: mBlue, fontSize: 15.0, fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
                       ),
-                      _loading_gradehistory == false
+                      _loading_gradehistory == false &&  _noGrade == false
                       ?Container(
                         child: gradeHistoryWidget(_categoryQuizList,token,context),
+                      ): _loading_gradehistory == false &&  _noGrade == true
+                      ?Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.0),
+                                color: mBlue,
+                              ),
+                              margin: EdgeInsets.symmetric(
+                                  vertical: 5.0, horizontal: 5.0),
+                              child: Center(
+                                child: Text(
+                                  'No Grade History',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 15.0,
+                                  ),
+                                ),
+                              ),
                       )
                       :Container(
                         padding: EdgeInsets.only(

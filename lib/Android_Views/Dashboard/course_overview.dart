@@ -5,28 +5,13 @@ import '../../ThemeColors/colors.dart';
 import 'package:moodle_test/Android_Views/Category/course_view.dart';
 import 'package:connectivity/connectivity.dart';
 
+
+
+Widget courseOverViewWidget(List<Course> _courseList, String token) {
+
   String eventtype="initial";
-  int index;
-  List _courseListTwo;
+  int indexcount;
 
-  showAlertDialog(String title, String message,context) {
-
-    AlertDialog alertDialog = AlertDialog(
-      title: Text(title),
-      content: Text(message),
-      actions: <Widget>[
-        FlatButton(onPressed: (){
-          Navigator.pop(context);
-          _connectionCheck(context);
-        }, child: Text('Try again'))
-      ],
-    );
-    showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (_) => alertDialog
-    );
-  }
 
   _connectionCheck(context) async{
     var connectivityResult = await (Connectivity().checkConnectivity());
@@ -36,7 +21,7 @@ import 'package:connectivity/connectivity.dart';
           context,
           MaterialPageRoute(
             builder: (context) => CourseEnroll(
-              course: _courseListTwo[index],
+              course: _courseList[indexcount],
             ),
           ),
         );
@@ -44,11 +29,23 @@ import 'package:connectivity/connectivity.dart';
     } 
     else if(connectivityResult == ConnectivityResult.none){
       print("here");
-      showAlertDialog('Mobile Connection Lost', 'Please connect to your wifi or turn on mobile data and try again',context);
+      AlertDialog alertDialog = AlertDialog(
+        title: Text('Mobile Connection Lost'),
+        content: Text('Please connect to your wifi or turn on mobile data and try again'),
+        actions: <Widget>[
+          FlatButton(onPressed: (){
+            Navigator.pop(context);
+            _connectionCheck(context);
+          }, child: Text('Try again'))
+        ],
+      );
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => alertDialog
+      );
     }
   }
-
-Widget courseOverViewWidget(List<Course> _courseList, String token) {
 
   return ListView.builder(
     itemCount: _courseList.length,
@@ -79,8 +76,7 @@ Widget courseOverViewWidget(List<Course> _courseList, String token) {
             child: InkWell(
               onTap: () {
                 eventtype="courselist";
-                index=index;
-                _courseListTwo=_courseList;
+                indexcount=index;
                 _connectionCheck(context);
               },
               child: Column(
@@ -102,13 +98,18 @@ Widget courseOverViewWidget(List<Course> _courseList, String token) {
                       Container(
                         padding: EdgeInsets.symmetric(
                             vertical: 8.0, horizontal: 16.0),
-                        child: Text(
+                        child: _courseList[index].progress == 100.0?Text(
                           "Completed",
                           style: TextStyle(
                             color: mBlue,
                             fontSize: 16.0,
                           ),
-                        ),
+                        )
+                        :Text("Still in progress",
+                            style: TextStyle(
+                            color: mBlue,
+                            fontSize: 16.0,
+                          ),)
                       ),
                       Container(
                         padding: EdgeInsets.symmetric(
