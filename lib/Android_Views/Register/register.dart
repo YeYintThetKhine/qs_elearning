@@ -85,49 +85,82 @@ class _RegistryState extends State<Registry> {
   TextEditingController _positionController = TextEditingController();
 
   _signUp() async {
-
-    if (_regFormKey.currentState.validate()) {
-      setState(() {
-        errorType="";
-      });
-      var email = _emailController.text;
-      var username = _usernameController.text;
-      var firstName = _nameController.text;
-      var lastName = _nameController.text;
-      var password = _passwordController.text;
-      var pos = _positionController.text;
-
-      var type = department;  
-
-      var branch = branchlist[0];  
-      //api.add_resource(UserEmailSignUp, '/register/<email>/<username>/<firstname>/<lastname>'
-                                  // '/<password>/<pos>/<dept>/<type>/<branch>/')
-      var url =
-          "$urlLink/register/$email/$username/$firstName/$lastName/$password/$pos/$dept/$type/$branch/";
-      print(url);
-      await http.get(url).then((data) {
-        errorResponse=json.decode(data.body);
-
-        print(errorResponse);
-        if(errorResponse['success'] == false){
-          setState(() {
-            errorType=errorResponse['warnings'][0]['item'];
-            errorMessage=errorResponse['warnings'][0]['message'];
-          });
-          print(errorType);
-        }
+    setState(() {
+      _loading = true;
+    });
+    try {
+      if (_regFormKey.currentState.validate()){
         setState(() {
+          errorType="";
+        });
+        var email = _emailController.text;
+        var username = _usernameController.text;
+        var firstName = _nameController.text
+            .substring(0, _nameController.text.lastIndexOf(' '));
+        var lastName = _nameController.text
+            .substring(_nameController.text.lastIndexOf(' '))
+            .trim();
+        var password = _passwordController.text;
+        var pos = _positionController.text;
+
+        var type = department;  
+
+        var branch = branchlist[0];  
+        //api.add_resource(UserEmailSignUp, '/register/<email>/<username>/<firstname>/<lastname>'
+                                    // '/<password>/<pos>/<dept>/<type>/<branch>/')
+        var url =
+            "$urlLink/register/$email/$username/$firstName/$lastName/$password/$pos/$dept/$type/$branch/";
+        print(url);
+        await http.get(url).then((data) {
+          errorResponse=json.decode(data.body);
+
+          print(errorResponse);
+          if(errorResponse['success'] == false){
+            setState(() {
+              errorType=errorResponse['warnings'][0]['item'];
+              errorMessage=errorResponse['warnings'][0]['message'];
+            });
+          }
+          else if(errorResponse['success'] == true){
+            setState(() {
+              _loading = false;
+            });
+            AlertDialog alert = AlertDialog(
+              title: Text("Successful"),
+              content: Text("Account successfully created"),
+              actions: [
+                FlatButton(onPressed: ()
+                  {
+                    Navigator.pop(context);
+                    Navigator.pop(context);
+                  }, 
+                  child: Text('Finish'))
+              ],
+            );
+
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return alert;
+              },
+            );
+          }
+        }).then((value) {
+      print('completed with value $value');
+    }, onError: (error) {
+      print('completed with error $error');
+    });
+      } else {
+        setState(() {     
           _loading = false;
         });
-      }).then((value) {
-    print('completed with value $value');
-  }, onError: (error) {
-    print('completed with error $error');
-  });
-    } else {
-      setState(() {     
-        _loading = false;
+      }
+    } on RangeError {
+      setState(() {
+        errorType="fullname";
+        errorMessage="Please put space between your name. Example:John Doe";
       });
+      print('Exception occurs');
     }
   }
 
@@ -205,12 +238,17 @@ class _RegistryState extends State<Registry> {
                         _nameController.text.length == 0 ? 'Required' : null,
                     decoration: InputDecoration(
                         labelText: 'Full Name',
+                        enabledBorder: UnderlineInputBorder(      
+                        borderSide: BorderSide(color: errorType=='fullname'?Colors.red:Colors.grey),   
+                        ), 
                         alignLabelWithHint: true,
                         labelStyle: _labelStyle,
-                        helperText:
-                          'This name that will identify you in your courses\nCANNOT BE CHANGED LATER',
+                        helperText:errorType=='fullname'
+                        ?'$errorMessage'
+                        :'This name that will identify you in your courses\nCANNOT BE CHANGED LATER',
+                        helperStyle: TextStyle(color: errorType=='fullname'?Colors.red:Colors.grey),
                         focusedBorder: UnderlineInputBorder(
-                            borderSide: BorderSide(color: mBlue, width: 2.0))),
+                            borderSide: BorderSide(color: errorType=='fullname'?Colors.red:mBlue, width: 2.0))),
                   ),
 
                   //input for Password here
@@ -334,26 +372,29 @@ class _RegistryState extends State<Registry> {
                 ],
               )),
           Padding(
-              child: Container(
-                  margin: EdgeInsets.all(8.0),
-                  height: 50,
-                  width: 150,
-                  child: RaisedButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    elevation: 3.0,
-                    color: mBlue,
-                    child: _loading == false
-                        ? Text('REGISTER', style: TextStyle(color: mWhite))
-                        : CircularProgressIndicator(
-                            strokeWidth: 1.5,
-                          ),
-                    onPressed: () {
-                      // Navigator.of(context).pop();
-                      _signUp();
-                    },
-                  )),
+              child: IgnorePointer(
+                ignoring: _loading == false?false:true, 
+                  child: Container(
+                      margin: EdgeInsets.all(8.0),
+                      height: 50,
+                      width: 150,
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8.0),
+                        ),
+                        elevation: 3.0,
+                        color: mBlue,
+                        child: _loading == false
+                            ? Text('REGISTER', style: TextStyle(color: mWhite))
+                            : CircularProgressIndicator(
+                                strokeWidth: 1.5,
+                              ),
+                        onPressed: () {
+                          // Navigator.of(context).pop();
+                          _signUp();
+                        },
+                      )),
+              ),
               padding: EdgeInsets.only(bottom: 2.0))
         ],
       )),

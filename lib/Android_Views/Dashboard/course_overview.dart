@@ -3,8 +3,53 @@ import 'package:percent_indicator/percent_indicator.dart';
 import '../../Model/model.dart';
 import '../../ThemeColors/colors.dart';
 import 'package:moodle_test/Android_Views/Category/course_view.dart';
+import 'package:connectivity/connectivity.dart';
+
+  String eventtype="initial";
+  int index;
+  List _courseListTwo;
+
+  showAlertDialog(String title, String message,context) {
+
+    AlertDialog alertDialog = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: <Widget>[
+        FlatButton(onPressed: (){
+          Navigator.pop(context);
+          _connectionCheck(context);
+        }, child: Text('Try again'))
+      ],
+    );
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => alertDialog
+    );
+  }
+
+  _connectionCheck(context) async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      if(eventtype == "courselist"){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CourseEnroll(
+              course: _courseListTwo[index],
+            ),
+          ),
+        );
+      }
+    } 
+    else if(connectivityResult == ConnectivityResult.none){
+      print("here");
+      showAlertDialog('Mobile Connection Lost', 'Please connect to your wifi or turn on mobile data and try again',context);
+    }
+  }
 
 Widget courseOverViewWidget(List<Course> _courseList, String token) {
+
   return ListView.builder(
     itemCount: _courseList.length,
     itemBuilder: (context, index) {
@@ -33,14 +78,10 @@ Widget courseOverViewWidget(List<Course> _courseList, String token) {
             width: 250.0,
             child: InkWell(
               onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => CourseEnroll(
-                      course: _courseList[index],
-                    ),
-                  ),
-                );
+                eventtype="courselist";
+                index=index;
+                _courseListTwo=_courseList;
+                _connectionCheck(context);
               },
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

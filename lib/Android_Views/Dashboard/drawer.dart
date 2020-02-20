@@ -8,6 +8,122 @@ import '../Category/category_list.dart';
 import '../Settings/settings.dart';
 import '../Help/help.dart';
 import 'package:moodle_test/DB/db.dart';
+import 'package:connectivity/connectivity.dart';
+
+
+
+  String eventtype="initial";
+
+  showAlertDialog(String title, String message,context) {
+
+    AlertDialog alertDialog = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: <Widget>[
+        FlatButton(onPressed: (){
+          Navigator.pop(context);
+          _connectionCheck(context);
+        }, child: Text('Try again'))
+      ],
+    );
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => alertDialog
+    );
+  }
+
+  _connectionCheck(context) async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      if(eventtype == "dashboard"){
+        Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => DashBoard()));
+      }
+      else if(eventtype == "categories"){
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => CategoryList(),
+          ),
+        );
+      }
+      else if(eventtype == "events"){
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                CalendarEventView(),
+          ),
+        );
+      }
+      else if(eventtype == "help"){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                Help(),
+          ),
+        );
+      }
+      else if(eventtype == "setting"){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                Setting(),
+          ),
+        );
+      }
+    } else if(connectivityResult == ConnectivityResult.mobile && connectivityResult == ConnectivityResult.wifi){
+      if(eventtype == "dashboard"){
+        Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (BuildContext context) => DashBoard()));
+      }
+      else if(eventtype == "categories"){
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => CategoryList(),
+          ),
+        );
+      }
+      else if(eventtype == "events"){
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                CalendarEventView(),
+          ),
+        );
+      }
+      else if(eventtype == "help"){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                Help(),
+          ),
+        );
+      }
+      else if(eventtype == "setting"){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                Setting(),
+          ),
+        );
+      }
+    } 
+    else{
+      showAlertDialog('Mobile Connection Lost', 'Please connect to your wifi or turn on mobile data and try again',context);
+    }
+  }
 
 Widget drawer(User user, BuildContext context) {
 
@@ -61,11 +177,9 @@ Widget drawer(User user, BuildContext context) {
                         )),
                   ),
                   ListTile(
-                    onTap: () {
-                      Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                              builder: (BuildContext context) => DashBoard()));
+                    onTap: (){
+                      eventtype="dashboard";
+                      _connectionCheck(context);
                     },
                     title: Text(
                       "Dashboard",
@@ -90,23 +204,14 @@ Widget drawer(User user, BuildContext context) {
                       color: mWhite,
                     ),
                     onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) => CategoryList(),
-                        ),
-                      );
+                      eventtype="categories";
+                      _connectionCheck(context);
                     },
                   ),
                   ListTile(
                     onTap: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              CalendarEventView(),
-                        ),
-                      );
+                      eventtype="events";
+                      _connectionCheck(context);
                     },
                     title: Text(
                       "Events",
@@ -121,13 +226,8 @@ Widget drawer(User user, BuildContext context) {
                   ),
                   ListTile(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              Help(),
-                        ),
-                      );
+                      eventtype="help";
+                      _connectionCheck(context);
                     },
                     title: Text(
                       "Help",
@@ -142,13 +242,8 @@ Widget drawer(User user, BuildContext context) {
                   ),
                   ListTile(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              Setting(),
-                        ),
-                      );
+                      eventtype="setting";
+                      _connectionCheck(context);
                     },
                     title: Text(
                       "Setting",

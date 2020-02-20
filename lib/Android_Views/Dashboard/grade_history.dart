@@ -86,9 +86,9 @@ Widget gradeHistoryWidget(List<GradeByCategory> _categoryQuizList, String token,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Container(
-                          child: Text(_categoryQuizList[index].coursename,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18)),
+                          child: Text(_categoryQuizList[index].coursename,style: TextStyle(color:mBlue ,fontWeight: FontWeight.bold,fontSize: 18)),
                         ),
-                        Text('Total Marks: ${_categoryQuizList[index].mark}'),
+                        Text('Total Marks: ${_categoryQuizList[index].mark}',style: TextStyle(color:mBlue)),
                       ]
                     ),
                   ),

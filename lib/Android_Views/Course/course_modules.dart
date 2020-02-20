@@ -427,19 +427,19 @@ class _CourseModulesState extends State<CourseModules> {
                                     margin: EdgeInsets.only(left:10),
                                     child: Row(
                                       children:[
-                                        Container(
-                                          width: 1,
-                                          height: 35,
-                                          margin: EdgeInsets.only(right:5),
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            border: Border.all(
-                                              color: Colors.white,
-                                              width: 0,
-                                            ),
-                                            borderRadius: BorderRadius.circular(5),
-                                          ),
-                                        ),
+                                        // Container(
+                                        //   width: 1,
+                                        //   height: 35,
+                                        //   margin: EdgeInsets.only(right:5),
+                                        //   decoration: BoxDecoration(
+                                        //     color: Colors.white,
+                                        //     border: Border.all(
+                                        //       color: Colors.white,
+                                        //       width: 0,
+                                        //     ),
+                                        //     borderRadius: BorderRadius.circular(5),
+                                        //   ),
+                                        // ),
                                         // Container(
                                         //   margin: EdgeInsets.only(right:5),
                                         //   color:mBlue,
@@ -465,7 +465,7 @@ class _CourseModulesState extends State<CourseModules> {
                                           ),
                                           child: Center(
                                             child: Text(
-                                            '${topic.modules[i].usercurrentattempts.toString()}/${topic.modules[i].maxattempts.toString()}',
+                                            'Attempt: ${topic.modules[i].usercurrentattempts.toString()}/${topic.modules[i].maxattempts.toString()}',
                                             style: TextStyle(
                                                 color: mBlue,
                                                 fontSize: 16.0,

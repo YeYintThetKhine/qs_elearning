@@ -392,7 +392,7 @@ class _CourseEnrollState extends State<CourseEnroll> {
                                           ),
                                         ),
                                       )
-                                    : FutureBuilder(
+                                    : course.progress != 100.0?FutureBuilder(
                                         future: _getModuleProgress(),
                                         builder: (context, snapshot) {
                                           bool waiting = false;
@@ -435,7 +435,8 @@ class _CourseEnrollState extends State<CourseEnroll> {
                                             ),
                                           );
                                         },
-                                      ),
+                                      )
+                                      :Container(),
                               ],
                             ),
                             Container(

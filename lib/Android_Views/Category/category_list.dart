@@ -11,6 +11,7 @@ import '../../Model/model.dart';
 import 'package:html/parser.dart' as html;
 import 'package:moodle_test/Android_Views/Category/course_view.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
+import 'package:connectivity/connectivity.dart';
 
 class CategoryList extends StatefulWidget {
   @override
@@ -22,6 +23,62 @@ class _CategoryListState extends State<CategoryList> {
   List<Category> _categoryList = [];
   bool _loading = true;
 
+  String eventtype="initial";
+
+  showAlertDialog(String title, String message,index,i,context) {
+
+    AlertDialog alertDialog = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: <Widget>[
+        FlatButton(onPressed: (){
+          Navigator.pop(context);
+          _connectionCheck(index,i);
+        }, child: Text('Try again'))
+      ],
+    );
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => alertDialog
+    );
+  }
+
+  _connectionCheck(index,i) async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      if(eventtype == "coursedetail"){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext
+                    context) =>
+                CourseEnroll(
+                    course:_categoryList[index].courses[i]),
+          ),
+        );
+      }
+      else if(eventtype == "drawer"){
+        _scaffoldKey.currentState.openDrawer();
+      }
+    } else if(connectivityResult == ConnectivityResult.mobile && connectivityResult == ConnectivityResult.wifi){
+      if(eventtype == "coursedetail"){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext
+                    context) =>
+                CourseEnroll(
+                    course:_categoryList[index].courses[i]),
+          ),
+        );
+      }
+    } 
+    else{
+      showAlertDialog('Mobile Connection Lost', 'Please connect to your wifi or turn on mobile data and try again',index,i,context);
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -29,11 +86,14 @@ class _CategoryListState extends State<CategoryList> {
     AutoLogoutMethod.autologout.counterstartpage(context);
   }
 
+
   Future<List<Category>> _getCategory() async {
+    _connectionCheck(0,0);
     setState(() {
       _loading = true;
     });
     _categoryList.clear();
+    var response;
     var url = '$urlLink/$token/category/';
     await http.get(url).then((data) async {
       var categories = json.decode(data.body);
@@ -79,10 +139,9 @@ class _CategoryListState extends State<CategoryList> {
       });
     }).then((value) {
     print('completed with value $value');
-  }, onError: (error) {
+  }, onError: (error) async{
     print('completed with error $error');
     AutoLogoutMethod.autologout.counter(context);
-    // _getCategory();
   });
     return _categoryList;
   }
@@ -108,9 +167,12 @@ class _CategoryListState extends State<CategoryList> {
         leading: IconButton(
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
-          onPressed: () {
-            _scaffoldKey.currentState.openDrawer();
+          onPressed: (){
+            setState(() {
+              eventtype="drawer";
+            });
             AutoLogoutMethod.autologout.counter(context);
+            _connectionCheck(0,0);
           },
           icon: Image.asset(
             'images/menu.png',
@@ -121,7 +183,9 @@ class _CategoryListState extends State<CategoryList> {
       ),
       drawer: drawer(currentUser, context),
       body: _loading
-          ? ListView.builder(
+          ? RefreshIndicator(
+            onRefresh: _getCategory,
+            child:ListView.builder(
               itemCount: 3,
               itemBuilder: (context, i) {
                 return Container(
@@ -136,6 +200,7 @@ class _CategoryListState extends State<CategoryList> {
                 );
               },
             )
+          )
           : RefreshIndicator(
               onRefresh: _getCategory,
               child: Container(
@@ -190,18 +255,22 @@ class _CategoryListState extends State<CategoryList> {
                                         child: InkWell(
                                           borderRadius:
                                               BorderRadius.circular(5.0),
-                                          onTap: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (BuildContext
-                                                        context) =>
-                                                    CourseEnroll(
-                                                        course:
-                                                            _categoryList[index]
-                                                                .courses[i]),
-                                              ),
-                                            );
+                                          onTap: (){
+                                            setState(() {
+                                              eventtype="coursedetail";
+                                            });
+                                            _connectionCheck(index,i);
+                                            // Navigator.push(
+                                            //   context,
+                                            //   MaterialPageRoute(
+                                            //     builder: (BuildContext
+                                            //             context) =>
+                                            //         CourseEnroll(
+                                            //             course:
+                                            //                 _categoryList[index]
+                                            //                     .courses[i]),
+                                            //   ),
+                                            // );
                                           },
                                           child: Column(
                                             children: <Widget>[

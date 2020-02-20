@@ -394,7 +394,7 @@ class _LandingPageState extends State<LandingPage> {
                 // Container(
                 //   alignment: Alignment.center,
                 //   child: Image.asset(
-                //     'images/logonew.png',
+                //     'images/insurance.png',
                 //     width: 250,
                 //     height: 250,
                 //   ),

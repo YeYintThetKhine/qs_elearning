@@ -168,7 +168,7 @@ class _GradeHistoryMoreState extends State<GradeHistoryMore> {
                                     width: 30,
                                     height: 55,
                                     margin: EdgeInsets.only(
-                                      top:35.0,left: 3),
+                                      top:35.0,left: 6),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.only(
                                         topRight: Radius.circular(20),

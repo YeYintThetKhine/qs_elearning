@@ -16,6 +16,7 @@ import '../Dashboard/grade_history.dart';
 import '../URL/url.dart';
 import '../../Model/user.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
+import 'package:connectivity/connectivity.dart';
 
 
 class DashBoard extends StatefulWidget {
@@ -35,6 +36,9 @@ class _DashBoardState extends State<DashBoard> {
   bool _getEvents = false;
   bool _event = true;
   Course recentcourse;
+
+  String eventtype="initial";
+
   GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   var getCategoryQuiz;
 
@@ -79,11 +83,54 @@ class _DashBoardState extends State<DashBoard> {
     }
   }
 
+  showAlertDialog(String title, String message,context) {
+
+    AlertDialog alertDialog = AlertDialog(
+      title: Text(title),
+      content: Text(message),
+      actions: <Widget>[
+        FlatButton(onPressed: (){
+          Navigator.pop(context);
+          _connectionCheck();
+        }, child: Text('Try again'))
+      ],
+    );
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => alertDialog
+    );
+  }
+
+  _connectionCheck() async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      if(eventtype == "initial"){
+
+      }
+      else if(eventtype == "drawer"){
+        _scaffoldKey.currentState.openDrawer();
+      }
+    } 
+    else if(connectivityResult == ConnectivityResult.mobile && connectivityResult == ConnectivityResult.wifi){
+      if(eventtype == "initial"){
+
+      }
+      else if(eventtype == "drawer"){
+        _scaffoldKey.currentState.openDrawer();
+      }
+    }
+    else{
+      showAlertDialog('Mobile Connection Lost', 'Please connect to your wifi or turn on mobile data and try again',context);
+    }
+  }
+
   
 
   @override
   void initState() {
     super.initState();
+    _connectionCheck();
     _courseOverview();
     _getRecentCourse();
     _getTodayEvents();
@@ -203,8 +250,11 @@ class _DashBoardState extends State<DashBoard> {
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
           onPressed: () {
+            setState(() {
+              eventtype="drawer";
+            });
+            _connectionCheck();
             countertimer();
-            _scaffoldKey.currentState.openDrawer();
           },
           icon: Image.asset(
             'images/menu.png',
