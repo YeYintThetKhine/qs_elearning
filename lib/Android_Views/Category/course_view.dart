@@ -187,6 +187,7 @@ class _CourseEnrollState extends State<CourseEnroll> {
                     loading = true;
                   });
                   var enrolUrl = '$urlLink/$token/enrol/${course.id}/';
+                  print(enrolUrl);
                   await http.get(enrolUrl).then((response) async {
                     var msg = json.decode(response.body);
                     if (msg['status']) {
@@ -204,17 +205,22 @@ class _CourseEnrollState extends State<CourseEnroll> {
                         loading = false;
                       });
                     }
-                  });
-                  _scaffoldKey.currentState.showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        'Course enrollment successful.',
-                        style: TextStyle(color: mBlue),
+                  }).then((value) {
+                    _scaffoldKey.currentState.showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Course enrollment successful.',
+                          style: TextStyle(color: mBlue),
+                        ),
+                        backgroundColor: Colors.white,
+                        duration: Duration(seconds: 2),
                       ),
-                      backgroundColor: Colors.white,
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
+                    );
+                    print('$value');
+                  }, onError: (error) async{
+                    print('$error');
+                    AutoLogoutMethod.autologout.counter(context);
+                  });
                 },
                 child: Text(
                   'Yes',

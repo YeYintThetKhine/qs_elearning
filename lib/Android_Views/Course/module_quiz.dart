@@ -48,9 +48,14 @@ class _ModuleQuizState extends State<ModuleQuiz> {
 
   Timer quiztimer;
   void counter(context) {
-    quiztimer = new Timer (Duration(seconds: timelimit), () {
-      _showAlertDialog('Time Up', 'You have exceeded the quiz time. Please take the quiz again.',context);
-    });
+    if(timelimit == 0){
+
+    }
+    else {
+      quiztimer = new Timer (Duration(seconds: timelimit), () {
+        _showAlertDialog('Time Up', 'You have exceeded the quiz time. Please take the quiz again.',context);
+      });
+    }
   }
 
 

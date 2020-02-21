@@ -378,7 +378,7 @@ class _CourseModulesState extends State<CourseModules> {
                                   ),
                                 );
                               } else {
-                                topic.modules[i].usercurrentattempts == topic.modules[i].maxattempts
+                                topic.modules[i].usercurrentattempts == topic.modules[i].maxattempts && topic.modules[i].maxattempts != 0
                                 ?_quizAttemptCheckDialog(topic.modules[i].maxattempts)
                                 :_startQuiz(topic.modules[i],topic.modules[i].timelimit);
                               }
@@ -423,6 +423,34 @@ class _CourseModulesState extends State<CourseModules> {
                                   ),
                                   topic.modules[i].maxattempts == -1
                                   ?Container()
+                                  :topic.modules[i].maxattempts == 0
+                                  ?Container(
+                                    margin: EdgeInsets.only(left:10),
+                                    child: Row(
+                                      children:[
+                                        Container(
+                                          padding: EdgeInsets.symmetric(vertical: 3,horizontal: 3),
+                                          decoration: BoxDecoration(
+                                              color: Colors.amber,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 2,
+                                              ),
+                                              borderRadius: BorderRadius.circular(5),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                            'Attempt: FREE',
+                                            style: TextStyle(
+                                                color: mBlue,
+                                                fontSize: 16.0,
+                                                fontWeight: FontWeight.bold),
+                                            ),
+                                          ),
+                                        ),
+                                      ]
+                                    ),
+                                  )
                                   :Container(
                                     margin: EdgeInsets.only(left:10),
                                     child: Row(

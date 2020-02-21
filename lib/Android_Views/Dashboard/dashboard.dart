@@ -284,7 +284,7 @@ class _DashBoardState extends State<DashBoard> {
                 Row(
                   children: <Widget>[
                     Container(
-                      padding: EdgeInsets.only(top:16.0,bottom:16.0,left:16.0,right:10.0),
+                      padding: EdgeInsets.only(top:16.0,bottom:16.0,left:16.0,right:5.0),
                       alignment: Alignment.centerLeft,
                       child: Text(
                         'Enrolled Course Overview',
