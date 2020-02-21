@@ -10,6 +10,7 @@ import 'package:moodle_test/Model/model.dart';
 import 'package:flutter_widgets/flutter_widgets.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 import 'dart:async';
+import 'dart:math' as math;
 
 class ModuleQuiz extends StatefulWidget {
   final token;
@@ -22,7 +23,7 @@ class ModuleQuiz extends StatefulWidget {
       _ModuleQuizState(module: module, token: token, timelimit: timelimit);
 }
 
-class _ModuleQuizState extends State<ModuleQuiz> {
+class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin{
   Module module;
   String token;
   int timelimit;
@@ -44,6 +45,13 @@ class _ModuleQuizState extends State<ModuleQuiz> {
 
   countertimer(){
     AutoLogoutMethod.autologout.counter(context);
+  }
+
+  AnimationController controller;
+
+  String get timerString {
+    Duration duration = controller.duration * controller.value;
+    return '${duration.inMinutes}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}';
   }
 
   Timer quiztimer;
@@ -84,7 +92,10 @@ class _ModuleQuizState extends State<ModuleQuiz> {
   @override
   void initState() {
     super.initState();
-    counter(context);
+    controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: timelimit),
+    );
     countertimer();
     _getQuiz();
   }
@@ -102,6 +113,7 @@ class _ModuleQuizState extends State<ModuleQuiz> {
     var number = 0;
     var response;
     var url = '$urlLink/$token/quiz/${module.instance}/';
+    print(url);
       try {
         response = await http.get(url).then((data) {
           var result = json.decode(data.body);
@@ -150,6 +162,12 @@ class _ModuleQuizState extends State<ModuleQuiz> {
         _loading = false;
       });
     }).then((value) {
+    controller.stop(canceled: true);
+    controller.reverse(
+    from: controller.value == 0.0
+        ? 1.0
+        : controller.value);
+    counter(context);
     print('completed with value $value');
   }, onError: (error) {
     print('completed with error $error');
@@ -411,6 +429,42 @@ class _ModuleQuizState extends State<ModuleQuiz> {
           module.name,
           style: TextStyle(color: Colors.amber),
         ),
+        actions: <Widget>[
+          Container(
+            height: 5,
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            padding: EdgeInsets.symmetric(horizontal: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(8.0),
+                bottomRight: Radius.circular(8.0),
+              ),
+              border: Border.all(
+                width: 1.5,
+                color: Colors.white,
+              ),
+            ),
+            child:Row(
+              children:[
+                Container(
+                  child:Text('Timer: ',
+                    style: TextStyle(color:mBlue,fontWeight: FontWeight.bold,fontSize: 18),
+                  ),
+                ),
+                Container(
+                  child: AnimatedBuilder(
+                      animation: controller,
+                      builder: (BuildContext context, Widget child) {
+                        return Text(
+                          timerString,
+                          style: TextStyle(color:mBlue,fontWeight: FontWeight.bold,fontSize: 18),
+                        );
+                      }),
+                ),
+              ]
+            ), 
+          ),
+        ],
         elevation: 0.0,
       ),
       body: _loading == true
@@ -750,5 +804,37 @@ class _ModuleQuizState extends State<ModuleQuiz> {
             ),
     ),
     );
+  }
+}
+
+class TimerPainter extends CustomPainter {
+  TimerPainter({
+    this.animation,
+    this.backgroundColor,
+    this.color,
+  }) : super(repaint: animation);
+
+  final Animation<double> animation;
+  final Color backgroundColor, color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = backgroundColor
+      ..strokeWidth = 5.0
+      ..strokeCap = StrokeCap.round
+      ..style = PaintingStyle.stroke;
+
+    canvas.drawCircle(size.center(Offset.zero), size.width / 2.0, paint);
+    paint.color = color;
+    double progress = (1.0 - animation.value) * 2 * math.pi;
+    canvas.drawArc(Offset.zero & size, math.pi * 1.5, -progress, false, paint);
+  }
+
+  @override
+  bool shouldRepaint(TimerPainter old) {
+    return animation.value != old.animation.value ||
+        color != old.color ||
+        backgroundColor != old.backgroundColor;
   }
 }

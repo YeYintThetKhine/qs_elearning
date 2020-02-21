@@ -68,7 +68,6 @@ class _CourseModulesState extends State<CourseModules> {
 
     String uid = currentUser.id;
     var quizAdditionalUrl = '$urlLink/$token/quizinfo/course/$courseId/user/$uid/';
-    print(quizAdditionalUrl);
     await http.get(quizAdditionalUrl).then((response) {
       var data = json.decode(response.body);
         for (var quiz in data['quiz_info']) {
@@ -440,7 +439,7 @@ class _CourseModulesState extends State<CourseModules> {
                                           ),
                                           child: Center(
                                             child: Text(
-                                            'Attempt: FREE',
+                                            'Attempt: ${topic.modules[i].maxattempts}',
                                             style: TextStyle(
                                                 color: mBlue,
                                                 fontSize: 16.0,

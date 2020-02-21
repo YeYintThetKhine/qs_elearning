@@ -61,7 +61,7 @@ class _LandingPageState extends State<LandingPage> {
       setState(() {
         _signingIn = true;
       });
-      var username = _username.text;
+      var username = _username.text.toLowerCase();
       var password = _password.text;
       var response;
       var url = '$urlLink/login/$username/$password/';

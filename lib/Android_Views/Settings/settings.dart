@@ -33,52 +33,6 @@ class _SettingState extends State<Setting> {
       body:SingleChildScrollView(
         child:Column(
           children: <Widget>[
-            Container(
-              margin: EdgeInsets.symmetric(horizontal: 15,vertical: 5),
-              height: 50,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Colors.white,
-                  width: 0,
-                ),
-                borderRadius: BorderRadius.circular(5),
-              ),
-              child: Row(
-                children:[
-                  Container(
-                    width: 60,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.amber,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 0,
-                      ),
-                      borderRadius: BorderRadius.only(bottomLeft:Radius.circular(5.0),topLeft:Radius.circular(5.0)),
-                    ),
-                    child:Center(
-                      child: Icon(Icons.language,color: Colors.black54)
-                    ),
-                  ),
-                  Container(
-                    height: 50,
-                    padding: EdgeInsets.only(left:20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 0,
-                      ),
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child:Center(
-                      child: Text('Language'),
-                    ),
-                  ),
-                ],
-              ),
-            ),
             GestureDetector(
               onTap: () {
                 countertimer();

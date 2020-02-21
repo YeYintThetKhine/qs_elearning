@@ -3,9 +3,12 @@ import '../../ThemeColors/colors.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 import '../../Model/model.dart';
 import 'package:moodle_test/Android_Views/Dashboard/grade_history_more.dart';
+import 'package:connectivity/connectivity.dart';
 
   @override
 Widget gradeHistoryWidget(List<GradeByCategory> _categoryQuizList, String token, context) {
+
+  String eventtype="initial";
 
     countertimer(){
       AutoLogoutMethod.autologout.counter(context);
@@ -86,7 +89,7 @@ Widget gradeHistoryWidget(List<GradeByCategory> _categoryQuizList, String token,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
                         Container(
-                          child: Text(_categoryQuizList[index].coursename,style: TextStyle(color:mBlue ,fontWeight: FontWeight.bold,fontSize: 18)),
+                          child: Text(_categoryQuizList[index].coursename,overflow: TextOverflow.ellipsis,style: TextStyle(color:mBlue ,fontWeight: FontWeight.bold,fontSize: 18)),
                         ),
                         Text('Total Marks: ${_categoryQuizList[index].mark}',style: TextStyle(color:mBlue)),
                       ]

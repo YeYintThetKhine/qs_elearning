@@ -143,7 +143,7 @@ _showBottomSheet(BuildContext context, List<Event> events) {
                               child: Row(
                                 children: [
                                   Container(
-                                    padding: EdgeInsets.symmetric(horizontal: 7.0,vertical: 7.0),
+                                    padding: EdgeInsets.symmetric(horizontal: 5.0,vertical: 5.0),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10.0),
                                       boxShadow: [
@@ -198,11 +198,13 @@ _showBottomSheet(BuildContext context, List<Event> events) {
                                           ),
                                         ),
                                         Container(
+                                          width: MediaQuery.of(context).size.width-130,
                                           padding: EdgeInsets.only(
                                             bottom: 6.0,
                                           ),
                                           child: Text(
                                             events[i].courseName,
+                                            overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
                                               color: Colors.white,
                                               fontSize: 16.0,
@@ -410,11 +412,13 @@ Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
                           ),
                         ),
                         Container(
+                          width: MediaQuery.of(context).size.width-135,
                           padding: EdgeInsets.only(
                             bottom: 6.0,
                           ),
                           child: Text(
                             eventList[0].courseName,
+                            overflow: TextOverflow.ellipsis,
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 16.0,

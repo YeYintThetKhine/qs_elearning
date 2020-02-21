@@ -88,7 +88,7 @@ class _HelpState extends State<Help> {
                         borderRadius: BorderRadius.circular(5),
                       ),
                       child:Center(
-                        child: Text('Terms & Conditions'),
+                        child: Text('User Guide'),
                       ),
                     ),
                   ],
