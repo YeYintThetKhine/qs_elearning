@@ -30,6 +30,9 @@ Widget courseOverViewWidget(List<Course> _courseList, String token) {
     else if(connectivityResult == ConnectivityResult.none){
       print("here");
       AlertDialog alertDialog = AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
         title: Text('Mobile Connection Lost'),
         content: Text('Please connect to your wifi or turn on mobile data and try again'),
         actions: <Widget>[

@@ -28,6 +28,9 @@ class _CategoryListState extends State<CategoryList> {
   showAlertDialog(String title, String message,index,i,context) {
 
     AlertDialog alertDialog = AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
       title: Text(title),
       content: Text(message),
       actions: <Widget>[
@@ -123,6 +126,11 @@ class _CategoryListState extends State<CategoryList> {
               );
             }
           }
+        }).then((value) {
+          print('completed with value $value');
+        }, onError: (error) async{
+          print('completed with error $error');
+          AutoLogoutMethod.autologout.counter(context);
         });
         _categoryList.add(
           Category(
@@ -210,7 +218,7 @@ class _CategoryListState extends State<CategoryList> {
                       delegate: SliverChildBuilderDelegate(
                         (context, index) {
                           return Container(
-                            height: 233.5,
+                            height: 236.5,
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: <Widget>[

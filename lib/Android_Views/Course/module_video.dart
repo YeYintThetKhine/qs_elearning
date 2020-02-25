@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
 import '../../Model/model.dart';
+import 'package:connectivity/connectivity.dart';
 
 class ModuleVideo extends StatefulWidget {
   final token;
@@ -21,6 +22,8 @@ class _ModuleVideoState extends State<ModuleVideo> {
   Icon toggleIcon = Icon(Icons.play_arrow);
   var _opacity = 0.0;
 
+  var subscription;
+
   @override
   void initState() {
     SystemChrome.setEnabledSystemUIOverlays([]);
@@ -31,6 +34,35 @@ class _ModuleVideoState extends State<ModuleVideo> {
       DeviceOrientation.portraitDown
     ]);
     super.initState();
+
+    subscription = Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      if (result == ConnectivityResult.mobile || result == ConnectivityResult.wifi) {
+        
+      }
+      else if(result == ConnectivityResult.none){
+        subscription.cancel();
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return WillPopScope(
+              onWillPop: () async => false,
+              child: AlertDialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              title: Text('Mobile Connection Lost'),
+              content: Text('Please connect to your wifi or turn on mobile data and try again'),
+              actions: <Widget>[
+                FlatButton(onPressed: (){
+                  Navigator.pop(context);
+                  Navigator.of(context, rootNavigator: true).pop('dialog');
+                }, child: Text('OK'))
+              ],
+            ),
+          );
+        });
+      }
+    });
     _controller = VideoPlayerController.network(module.url + '&token=$token')
       ..initialize().then((_) {
         setState(() {

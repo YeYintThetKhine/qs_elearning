@@ -127,7 +127,7 @@ class _RegistryState extends State<Registry> {
             });
             AlertDialog alert = AlertDialog(
               title: Text("Successful"),
-              content: Text("Account successfully created"),
+              content: Text("Account successfully created and please check your mail to confirm this account creation process"),
               actions: [
                 FlatButton(onPressed: ()
                   {
@@ -171,7 +171,11 @@ class _RegistryState extends State<Registry> {
   Widget build(BuildContext context) {
     return Form(
       key: _regFormKey,
-      child: SingleChildScrollView(
+      child: GestureDetector(
+        onTap: () {
+            FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child:SingleChildScrollView(
           child: Column(
         children: <Widget>[
           // Container(
@@ -401,6 +405,7 @@ class _RegistryState extends State<Registry> {
               padding: EdgeInsets.only(bottom: 2.0))
         ],
       )),
+      ),
     );
   }
 }

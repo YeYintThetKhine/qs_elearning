@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import '../../ThemeColors/colors.dart';
 import '../../Model/model.dart';
 import 'package:html/parser.dart' as html;
+import 'package:connectivity/connectivity.dart';
 
 showDetail(BuildContext context, Event event) {
   showDialog(
@@ -29,7 +30,9 @@ showDetail(BuildContext context, Event event) {
               html.parse(event.desc).body.text,
               style: TextStyle(height: 1.25),
             ),
-            ListTile(
+            event.location == ""
+            ?Container()
+            :ListTile(
               contentPadding: EdgeInsets.all(0.0),
               leading: Icon(Icons.location_on),
               title: Text(event.location),
@@ -225,7 +228,9 @@ _showBottomSheet(BuildContext context, List<Event> events) {
                                                     fontSize: 14.0,
                                                     color: Colors.white),
                                               ),
-                                              Padding(
+                                              events[i].location == ""
+                                              ?Container()
+                                              :Padding(
                                                 padding:
                                                     EdgeInsets.only(left: 24.0),
                                                 child: Icon(
@@ -234,7 +239,9 @@ _showBottomSheet(BuildContext context, List<Event> events) {
                                                   color: Colors.white,
                                                 ),
                                               ),
-                                              Text(
+                                              events[i].location == ""
+                                              ?Container()
+                                              :Text(
                                                 events[i].location,
                                                 style: TextStyle(
                                                     fontSize: 14.0,
@@ -280,6 +287,42 @@ _showBottomSheet(BuildContext context, List<Event> events) {
 }
 
 Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
+
+  var eventtype;
+
+    _connectionCheck(context) async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      if(eventtype == 'firstevent'){
+        showDetail(context, eventList[0]);
+      }
+      else if(eventtype == 'moreevents'){
+        _showBottomSheet(context, eventList);
+      }
+    } 
+    else if(connectivityResult == ConnectivityResult.none){
+      print("here");
+      AlertDialog alertDialog = AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        title: Text('Mobile Connection Lost'),
+        content: Text('Please connect to your wifi or turn on mobile data and try again'),
+        actions: <Widget>[
+          FlatButton(onPressed: (){
+            Navigator.pop(context);
+            _connectionCheck(context);
+          }, child: Text('Try again'))
+        ],
+      );
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => alertDialog
+      );
+    }
+  }
+
   return Column(
     children: <Widget>[
       Container(
@@ -327,7 +370,8 @@ Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
                 padding: EdgeInsets.all(0.0),
                 onPressed: () {
                   if (eventList.length > 0) {
-                    _showBottomSheet(context, eventList);
+                    eventtype='moreevents';
+                    _connectionCheck(context);
                   } else {}
                 },
                 child: eventList.length > 0
@@ -354,7 +398,8 @@ Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
       event == true
           ? InkWell(
               onTap: () {
-                showDetail(context, eventList[0]);
+                eventtype='firstevent';
+                _connectionCheck(context);
               },
               child: Row(
                 children: [
@@ -393,6 +438,7 @@ Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
                     ),
                   ),
                   Container(
+                    width: MediaQuery.of(context).size.width-120,
                     padding: EdgeInsets.only(
                       left: 24.0,
                     ),
@@ -438,7 +484,9 @@ Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
                                 style: TextStyle(
                                     fontSize: 14.0, color: Colors.white),
                               ),
-                              Padding(
+                              eventList[0].location == ""
+                              ?Container()
+                              :Padding(
                                 padding: EdgeInsets.only(left: 24.0),
                                 child: Icon(
                                   Icons.location_on,
@@ -446,11 +494,13 @@ Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
                                   color: Colors.white,
                                 ),
                               ),
-                              Text(
+                              eventList[0].location == ""
+                              ?Text(
                                 eventList[0].location,
                                 style: TextStyle(
                                     fontSize: 14.0, color: Colors.white),
                               )
+                              :Container(),
                             ],
                           ),
                         ),

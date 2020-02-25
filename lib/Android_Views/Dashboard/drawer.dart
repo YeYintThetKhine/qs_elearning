@@ -18,6 +18,9 @@ import '../../Model/user.dart';
   showAlertDialog(String title, String message,context) {
 
     AlertDialog alertDialog = AlertDialog(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
       title: Text(title),
       content: Text(message),
       actions: <Widget>[

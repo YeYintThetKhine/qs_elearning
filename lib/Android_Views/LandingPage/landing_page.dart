@@ -340,7 +340,7 @@ class _LandingPageState extends State<LandingPage> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
                         Text(
-                          'Do not have a account?',
+                          'Do not have an account?',
                           style: TextStyle(
                             color: Color(0xFFF5F5F5),
                           ),
@@ -394,7 +394,7 @@ class _LandingPageState extends State<LandingPage> {
                 // Container(
                 //   alignment: Alignment.center,
                 //   child: Image.asset(
-                //     'images/insurance.png',
+                //     'images/logonew.png',
                 //     width: 250,
                 //     height: 250,
                 //   ),
@@ -430,7 +430,12 @@ class _LandingPageState extends State<LandingPage> {
     return Scaffold(
       key: _scaffoldKey,
       resizeToAvoidBottomPadding: false,
-      body: _orientationBuild(),
+      body: GestureDetector(
+        onTap: () {
+            FocusScope.of(context).requestFocus(new FocusNode());
+        },
+        child: _orientationBuild(),
+        ),
     );
   }
 }

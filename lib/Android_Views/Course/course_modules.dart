@@ -16,6 +16,8 @@ import '../../Android_Views/Course/module_lesson.dart';
 import 'package:http/http.dart' as http;
 import 'package:html/parser.dart' as html;
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
+import 'package:connectivity/connectivity.dart';
+import 'package:flutter/cupertino.dart';
 
 class CourseModules extends StatefulWidget {
   final topic;
@@ -37,6 +39,80 @@ class _CourseModulesState extends State<CourseModules> {
   List<QuizAdditionalDetail> _quizDetailList = [];
 
   int quiznum = 0;
+
+  String eventtype = 'initail';
+  
+  bool connectionreload = false;
+
+  _connectionCheck(context,i) async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      if(eventtype == 'drawer'){
+        setState(() {
+          connectionreload = false;
+        });
+        _scaffoldKey.currentState.openDrawer();
+      }
+      else if(eventtype == 'resource') {
+        setState(() {
+          connectionreload = false;
+        });
+        Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => ModuleVideo(
+                  module: topic.modules[i],
+                  token: token,
+                ),
+              ),
+            );
+      }
+      else if(eventtype == 'lesson') {
+        setState(() {
+          connectionreload = false;
+        });
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ModuleLesson(
+              module: topic.modules[i],
+            ),
+          ),
+        );
+      }
+      else if(eventtype == 'quiz') {
+        setState(() {
+          connectionreload = false;
+        });
+        topic.modules[i].usercurrentattempts == topic.modules[i].maxattempts && topic.modules[i].maxattempts != 0
+        ?_quizAttemptCheckDialog(topic.modules[i].maxattempts)
+        :_startQuiz(topic.modules[i],topic.modules[i].timelimit);
+      }
+    } 
+    else if(connectivityResult == ConnectivityResult.none){
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            title: Text('Mobile Connection Lost'),
+            content: Text('Please connect to your wifi or turn on mobile data and try again'),
+            actions: <Widget>[
+              FlatButton(onPressed: (){
+                Navigator.of(context, rootNavigator: true).pop('dialog');
+                _connectionCheck(context,i);
+              }, child: Text('Try again'))
+            ],
+          ),
+        );
+      });
+    }
+  }
+
 
   counter_timer(){
     AutoLogoutMethod.autologout.counter(context);
@@ -63,6 +139,21 @@ class _CourseModulesState extends State<CourseModules> {
 
   Future<Topic> getModules() async {
     var modUrl = '$urlLink/$token/course/$courseId/section/${topic.id}/';
+    print(modUrl);
+    var response;
+      try {
+        response = await http.get(modUrl).timeout(
+              Duration(seconds: 20),
+            );
+      } on TimeoutException catch (_) {
+        setState(() {
+          connectionreload = true;
+        });
+      } catch (e) {
+        setState(() {
+          connectionreload = true;
+        });
+      }
     await http.get(modUrl).then((response) async{
       var mods = json.decode(response.body);
 
@@ -152,7 +243,11 @@ class _CourseModulesState extends State<CourseModules> {
           modules: null,
         );
       }
-    });
+    }).then((value) {
+    print('completed with value $value');
+  }, onError: (error) async{
+    print('completed with error $error');
+  });
     return topic;
   }
 
@@ -276,7 +371,10 @@ class _CourseModulesState extends State<CourseModules> {
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
           onPressed: () {
-            _scaffoldKey.currentState.openDrawer();
+            setState(() {
+              eventtype = 'drawer';
+            });
+            _connectionCheck(context,0);
             counter_timer();
           },
           icon: Image.asset(
@@ -290,6 +388,37 @@ class _CourseModulesState extends State<CourseModules> {
       body: FutureBuilder(
         future: getModules(),
         builder: (context, snapshot) {
+        if (connectionreload == true) {
+        return  Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Center(
+                    heightFactor: 1.5,
+                    child: Icon(Icons.signal_cellular_connected_no_internet_4_bar,color: mWhite,size: 50),
+                  ),
+                  Center(
+                    heightFactor: 2.0,
+                    child: Text('No network Access'.toUpperCase(),
+                      style: TextStyle(color: mWhite, fontSize: 20),
+                    ),
+                  ),
+                  Container(
+                    child: CupertinoButton(
+                      padding: const EdgeInsets.only(top:10, bottom: 10, right:20, left:20),
+                      color: mWhite,
+                      onPressed: (){
+                        _connectionCheck(context,0);
+                      },
+                      child: Text('Try Again',
+                        style: TextStyle(
+                          color: mBlue
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+        }
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Container(
               child: Center(
@@ -357,34 +486,27 @@ class _CourseModulesState extends State<CourseModules> {
                               _showRestricted(topic.modules[i].available);
                             } else {
                               if (topic.modules[i].moduleType == 'resource') {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ModuleVideo(
-                                      module: topic.modules[i],
-                                      token: token,
-                                    ),
-                                  ),
-                                );
+                                setState(() {
+                                  eventtype = 'resource';
+                                });
+                                _connectionCheck(context,i);
                               } else if (topic.modules[i].moduleType ==
                                   'lesson') {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ModuleLesson(
-                                      module: topic.modules[i],
-                                    ),
-                                  ),
-                                );
+                                setState(() {
+                                  eventtype = 'lesson';
+                                });
+                                _connectionCheck(context, i);
                               } else {
-                                topic.modules[i].usercurrentattempts == topic.modules[i].maxattempts && topic.modules[i].maxattempts != 0
-                                ?_quizAttemptCheckDialog(topic.modules[i].maxattempts)
-                                :_startQuiz(topic.modules[i],topic.modules[i].timelimit);
+                                setState(() {
+                                  eventtype = 'quiz';
+                                });
+                                _connectionCheck(context, i);
                               }
                             }
                           },
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: <Widget>[
                               Row(
                                 children: <Widget>[
@@ -411,16 +533,21 @@ class _CourseModulesState extends State<CourseModules> {
                                           ),
                                   ),
                                   Container(
-                                    // width: MediaQuery.of(context).size.width-200,
+                                    width: MediaQuery.of(context).size.width-222,
                                     padding: EdgeInsets.only(left: 8.0),
                                     child: Text(
                                       topic.modules[i].name,
+                                      overflow: TextOverflow.ellipsis,
                                       style: TextStyle(
                                           color: Colors.white70,
                                           fontSize: 16.0),
                                     ),
                                   ),
                                   topic.modules[i].maxattempts == -1
+                                  ?Container()
+                                  :topic.modules[i].available != null
+                                  ?Container()
+                                  :topic.modules[i].maxattempts == null
                                   ?Container()
                                   :topic.modules[i].maxattempts == 0
                                   ?Container(
@@ -439,7 +566,7 @@ class _CourseModulesState extends State<CourseModules> {
                                           ),
                                           child: Center(
                                             child: Text(
-                                            'Attempt: ${topic.modules[i].maxattempts}',
+                                            'Attempt: Free',
                                             style: TextStyle(
                                                 color: mBlue,
                                                 fontSize: 16.0,
@@ -454,32 +581,6 @@ class _CourseModulesState extends State<CourseModules> {
                                     margin: EdgeInsets.only(left:10),
                                     child: Row(
                                       children:[
-                                        // Container(
-                                        //   width: 1,
-                                        //   height: 35,
-                                        //   margin: EdgeInsets.only(right:5),
-                                        //   decoration: BoxDecoration(
-                                        //     color: Colors.white,
-                                        //     border: Border.all(
-                                        //       color: Colors.white,
-                                        //       width: 0,
-                                        //     ),
-                                        //     borderRadius: BorderRadius.circular(5),
-                                        //   ),
-                                        // ),
-                                        // Container(
-                                        //   margin: EdgeInsets.only(right:5),
-                                        //   color:mBlue,
-                                        //   child:Center(
-                                        //     child: Text(
-                                        //     'Attempt',
-                                        //     style: TextStyle(
-                                        //         color: Colors.amber,
-                                        //         fontSize: 16.0,
-                                        //         fontWeight: FontWeight.bold),
-                                        //     ),
-                                        //   ),
-                                        // ),
                                         Container(
                                           padding: EdgeInsets.symmetric(vertical: 3,horizontal: 3),
                                           decoration: BoxDecoration(
@@ -500,61 +601,8 @@ class _CourseModulesState extends State<CourseModules> {
                                             ),
                                           ),
                                         ),
-                                        // Stack(
-                                        //   children: <Widget>[
-                                        //     Container(
-                                        //       margin: EdgeInsets.only(top:10),
-                                        //       padding: EdgeInsets.only(left:5,right: 10,top:5,bottom:5),
-                                        //       color:mBlue,
-                                        //       child:Center(
-                                        //         child: Text(
-                                        //         'Attempt',
-                                        //         style: TextStyle(
-                                        //             color: Colors.amber,
-                                        //             fontSize: 16.0,
-                                        //             fontWeight: FontWeight.bold),
-                                        //         ),
-                                        //       ),
-                                        //     ),
-                                        //     Container(
-                                        //       padding: EdgeInsets.symmetric(vertical: 3,horizontal: 3),
-                                        //       margin: EdgeInsets.only(left:65,bottom:25),
-                                        //       decoration: BoxDecoration(
-                                        //           color: Colors.amber,
-                                        //           border: Border.all(
-                                        //             color: Colors.white,
-                                        //             width: 2,
-                                        //           ),
-                                        //           borderRadius: BorderRadius.circular(5),
-                                        //       ),
-                                        //       child: Center(
-                                        //         child: Text(
-                                        //         '${topic.modules[i].usercurrentattempts.toString()}/${topic.modules[i].maxattempts.toString()}',
-                                        //         style: TextStyle(
-                                        //             color: mBlue,
-                                        //             fontSize: 16.0,
-                                        //             fontWeight: FontWeight.bold),
-                                        //         ),
-                                        //       ),
-                                        //     ),
-                                        //   ],
-                                        // ),
                                       ]
                                     ),
-                                    // decoration: BoxDecoration(
-                                    //   color: Colors.white,
-                                    //   border: Border.all(
-                                    //     color: Colors.white,
-                                    //     width: 0,
-                                    //   ),
-                                    //   borderRadius: BorderRadius.circular(5),
-                                    // ),
-                                    // child: Text(
-                                    //   topic.modules[i].maxattempts.toString(),
-                                    //   style: TextStyle(
-                                    //       color: Colors.white70,
-                                    //       fontSize: 16.0),
-                                    // ),
                                   ),
                                   topic.modules[i].available == null
                                       ? Container()
@@ -564,7 +612,6 @@ class _CourseModulesState extends State<CourseModules> {
                                             borderRadius:
                                                 BorderRadius.circular(5.0),
                                           ),
-                                          margin: EdgeInsets.only(left: 16.0),
                                           padding: EdgeInsets.all(6.0),
                                           child: Text(
                                             'Restricted'.toUpperCase(),

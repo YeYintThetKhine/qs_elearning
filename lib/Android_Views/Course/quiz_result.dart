@@ -145,7 +145,7 @@ class _ShowQuizResultState extends State<ShowQuizResult> {
                 )
               ),
               Container(
-                height:  MediaQuery.of(context).size.height-165,
+                height:  MediaQuery.of(context).size.height-171,
                 child: Container(
                   decoration: new BoxDecoration(
                     borderRadius: BorderRadius.circular(10.0),

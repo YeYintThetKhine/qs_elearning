@@ -8,7 +8,13 @@ class About extends StatefulWidget {
   _AboutState createState() => _AboutState();
 }
 
-var dummydata = "Understanding eLearning is simple. eLearning is learning utilizing electronic technologies to access educational curriculum outside of a traditional classroom.  In most cases, it refers to a course, program or degree delivered completely online.There are many terms used to describe learning that is delivered online, via the internet, ranging from Distance Education, to computerized electronic learning, online learning, internet learning and many others. We define eLearning as courses that are specifically delivered via the internet to somewhere other than the classroom where the professor is teaching. It is not a course delivered via a DVD or CD-ROM, video tape or over a television channel. It is interactive in that you can also communicate with your teachers, professors or other students in your class. Sometimes it is delivered live, where you can “electronically” raise your hand and interact in real time and sometimes it is a lecture that has been prerecorded. There is always a teacher or professor interacting /communicating with you and grading your participation, your assignments and your tests. eLearning has been proven to be a successful method of training and education is becoming a way of life for many citizens in North Carolina.";
+var course = "Course creation added to web version for admin. Giving access to mobile application for course lessons, quizzes and videos implemented";
+
+var calender = "Calendar event addition added to web version. Giving event information from Calendar implemented";
+
+var message = "Sending messages to students from web version added. Receiving messages from students on web version added";
+
+var grade = "Grade calculation and weighting added to web version. Showing grades according to courses and grade details to mobile application implemented";
 
 class _AboutState extends State<About> {
 
@@ -38,9 +44,112 @@ class _AboutState extends State<About> {
       body:SingleChildScrollView(
         child:Container(
           width: MediaQuery.of(context).size.width,
-          margin: EdgeInsets.symmetric(horizontal:14),
-          child: Text(dummydata,textAlign: TextAlign.justify,
+          margin: EdgeInsets.symmetric(horizontal:25),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                        "E-Learning Version 1.0",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amber,
+                        ),
+                      ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                        "Moodle Version 3.7",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amber,
+                        ),
+                      ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(
+                        "Features",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.amber,
+                        ),
+                      ),
+              ),
+              Container(
+                padding: EdgeInsets.only(top: 10, bottom: 10, left: 10),
+                child: Text(
+                        "Courses",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(course,textAlign: TextAlign.justify,
                  style: TextStyle(height: 1.5,color: Colors.white,fontSize: 14.0),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(top: 10, bottom: 10, left: 10),
+                child: Text(
+                        "Calendar",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(course,textAlign: TextAlign.justify,
+                 style: TextStyle(height: 1.5,color: Colors.white,fontSize: 14.0),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(top: 10, bottom: 10, left: 10),
+                child: Text(
+                        "Messages",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(message,textAlign: TextAlign.justify,
+                 style: TextStyle(height: 1.5,color: Colors.white,fontSize: 14.0),
+                ),
+              ),
+              Container(
+                padding: EdgeInsets.only(top: 10, bottom: 10, left: 10),
+                child: Text(
+                        "Grades",
+                        style: TextStyle(
+                          fontSize: 20.0,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 10),
+                child: Text(grade,textAlign: TextAlign.justify,
+                 style: TextStyle(height: 1.5,color: Colors.white,fontSize: 14.0),
+                ),
+              ),
+            ],
           ),
         ),
       )

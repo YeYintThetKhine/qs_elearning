@@ -8,7 +8,44 @@ import 'package:connectivity/connectivity.dart';
   @override
 Widget gradeHistoryWidget(List<GradeByCategory> _categoryQuizList, String token, context) {
 
-  String eventtype="initial";
+
+
+    _connectionCheck(context,index) async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => GradeHistoryMore(
+            categoryname: _categoryQuizList[index].categoryname,
+            courseid:_categoryQuizList[index].courseid,
+            coursename: _categoryQuizList[index].coursename
+          ),
+        ),
+      );
+    } 
+    else if(connectivityResult == ConnectivityResult.none){
+      print("here");
+      AlertDialog alertDialog = AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        title: Text('Mobile Connection Lost'),
+        content: Text('Please connect to your wifi or turn on mobile data and try again'),
+        actions: <Widget>[
+          FlatButton(onPressed: (){
+            Navigator.pop(context);
+            _connectionCheck(context,index);
+          }, child: Text('Try again'))
+        ],
+      );
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => alertDialog
+      );
+    }
+  }
 
     countertimer(){
       AutoLogoutMethod.autologout.counter(context);
@@ -28,16 +65,7 @@ Widget gradeHistoryWidget(List<GradeByCategory> _categoryQuizList, String token,
       itemBuilder: (context, index) {
         return GestureDetector( 
           onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => GradeHistoryMore(
-                  categoryname: _categoryQuizList[index].categoryname,
-                  courseid:_categoryQuizList[index].courseid,
-                  coursename: _categoryQuizList[index].coursename
-                ),
-              ),
-            );
+            _connectionCheck(context,index);
           },
           child: Container(width: 303.0,
                 margin: EdgeInsets.only(left:10,right: 6),

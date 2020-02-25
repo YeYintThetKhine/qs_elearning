@@ -96,7 +96,10 @@ class _DashBoardState extends State<DashBoard> {
   showAlertDialog(String title, String message,context) {
 
     AlertDialog alertDialog = AlertDialog(
-      title: Text(title),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      title: Text('Mobile Connection Lost'),
       content: Text(message),
       actions: <Widget>[
         FlatButton(onPressed: (){
@@ -214,6 +217,7 @@ class _DashBoardState extends State<DashBoard> {
     var month = DateTime.now().month;
     var day = DateTime.now().day;
     var url = '$urlLink/$token/events/date/$year/$month/$day/';
+    print(url);
     await http.get(url).then((result) {
       var events = json.decode(result.body);
       if (events['events'].length > 0) {

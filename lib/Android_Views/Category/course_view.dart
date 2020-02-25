@@ -13,6 +13,7 @@ import 'package:moodle_test/Android_Views/URL/url.dart';
 import '../Course/course_modules.dart';
 import 'package:html/parser.dart' as html;
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
+import 'package:connectivity/connectivity.dart';
 
 class CourseEnroll extends StatefulWidget {
   final course;
@@ -28,7 +29,81 @@ class _CourseEnrollState extends State<CourseEnroll> {
   List<String> cids = [];
   bool enrolled = false;
   bool loading = true;
+  bool connectionreload = false;
   double progress = 0.0;
+
+  String eventtype='';
+
+  _connectionCheck(context,_topicList,i) async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      if(eventtype == 'checkenrolled'){
+        setState(() {
+          connectionreload=false;
+        });
+        _checkEnrolled(course.id);
+      }
+      else if (eventtype == 'fetchtimeout') {
+        setState(() {
+          connectionreload=false;
+        });
+      }
+      else if(eventtype == 'drawer'){
+        setState(() {
+          connectionreload=false;
+        });
+          _checkEnrolled(course.id);
+        _scaffoldKey.currentState.openDrawer();
+      }
+      else if(eventtype == 'coursemodule') {
+        setState(() {
+          connectionreload=false;
+        });
+        if (enrolled) {
+          if (_topicList[i].available == null) {
+            counter_timer();
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => CourseModules(
+                  topic: _topicList[i],
+                  courseId: course.id.toString(),
+                ),
+              ),
+            );
+          } else {
+            _showRestricted(_topicList[i].available);
+          }
+        } else {}
+      }
+    } 
+    else if(connectivityResult == ConnectivityResult.none){
+      setState(() {
+        connectionreload=true;
+      });
+      WillPopScope willPopScope = WillPopScope(
+        onWillPop: () async => false,
+        child: AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        title: Text('Mobile Connection Lost'),
+        content: Text('Please connect to your wifi or turn on mobile data and try again'),
+        actions: <Widget>[
+          FlatButton(onPressed: (){
+            Navigator.of(context, rootNavigator: true).pop('dialog');
+            _connectionCheck(context,_topicList,i);
+          }, child: Text('Try again'))
+        ],
+      )
+      );
+      showDialog(
+          context: _scaffoldKey.currentContext,
+          barrierDismissible: false,
+          builder: (_) => willPopScope
+      );
+    }
+  }
 
   counter_timer(){
     AutoLogoutMethod.autologout.counter(context);
@@ -42,6 +117,7 @@ class _CourseEnrollState extends State<CourseEnroll> {
   }
 
   _checkEnrolled(int cid) async {
+    try{
     String uid = currentUser.id;
     var url = '$urlLink/$token/user/$uid/enrolledCourses/';
     await http.get(url).then((result) {
@@ -88,12 +164,38 @@ class _CourseEnrollState extends State<CourseEnroll> {
         }
       }
     });
+    }
+      on TimeoutException catch (_) {
+      setState(() {
+        eventtype = 'checkenrolled';
+      });
+      _connectionCheck(context,[],0);
+    } catch (e) {
+      setState(() {
+        eventtype = 'checkenrolled';
+      });
+      _connectionCheck(context,[],0);
+    }
   }
 
   Future<Course> _getModuleProgress() async {
     Course currentCourse;
+    var response;
     var progressUrl =
         '$urlLink/$token/${currentUser.id}/course/${course.id}/progress/';
+      try {
+        response = await http.get(progressUrl).timeout(
+              Duration(seconds: 20),
+            );
+      } on TimeoutException catch (_) {
+        setState(() {
+          connectionreload = true;
+        });
+      } catch (e) {
+        setState(() {
+          connectionreload = true;
+        });
+      }
     await http.get(progressUrl).then((response) {
       var result = json.decode(response.body);
       currentCourse = Course(
@@ -106,13 +208,32 @@ class _CourseEnrollState extends State<CourseEnroll> {
         progress:
             result['progress'] == null ? 0.0 : result['progress'].toDouble(),
       );
-    });
+    }).then((value) {
+    print('completed with value $value');
+  }, onError: (error) async{
+    print('completed with error $error');
+    AutoLogoutMethod.autologout.counter(context);
+  });
     return currentCourse;
   }
 
   Future<List<Topic>> _getCourseModule() async {
     List<Topic> _topicList = [];
     var modUrl = '$urlLink/$token/course/${course.id}/modules/';
+    var response;
+      try {
+        response = await http.get(modUrl).timeout(
+              Duration(seconds: 20),
+            );
+      } on TimeoutException catch (_) {
+        setState(() {
+          connectionreload = true;
+        });
+      } catch (e) {
+        setState(() {
+          connectionreload = true;
+        });
+      }
     await http.get(modUrl).then((response) {
       var mods = json.decode(response.body);
       for (var topic in mods) {
@@ -284,7 +405,10 @@ class _CourseEnrollState extends State<CourseEnroll> {
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
           onPressed: () {
-            _scaffoldKey.currentState.openDrawer();
+            setState(() {
+              eventtype='drawer';
+            });
+            _connectionCheck(context,[],0);
             counter_timer();
           },
           icon: Image.asset(
@@ -371,7 +495,9 @@ class _CourseEnrollState extends State<CourseEnroll> {
                                     )
                                   ],
                                 ),
-                                enrolled == false
+                                connectionreload == true
+                                ? Container()
+                                :enrolled == false
                                     ? Container(
                                         width: 75.0,
                                         height: 35.0,
@@ -488,6 +614,43 @@ class _CourseEnrollState extends State<CourseEnroll> {
                   FutureBuilder(
                     future: _getCourseModule(),
                     builder: (context, snapshot) {
+                      if (connectionreload == true) {
+                      return  SliverList(
+                        delegate: SliverChildListDelegate(
+                          [
+                     Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Center(
+                              heightFactor: 1.5,
+                              child: Icon(Icons.signal_cellular_connected_no_internet_4_bar,color: mWhite,size: 40),
+                            ),
+                            Center(
+                              heightFactor: 1.5,
+                              child: Text('No network Access'.toUpperCase(),
+                                style: TextStyle(color: mWhite, fontSize: 20),
+                              ),
+                            ),
+                            Container(
+                              child: CupertinoButton(
+                                padding: const EdgeInsets.only(top:10, bottom: 10, right:20, left:20),
+                                color: mWhite,
+                                onPressed: (){
+                                  _connectionCheck(context,[],0);
+                                },
+                                child: Text('Try Again',
+                                  style: TextStyle(
+                                    color: mBlue
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                      )
+                          ]
+                        ),
+                      );
+                      }
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         return SliverList(
                           delegate: SliverChildListDelegate(
@@ -543,22 +706,10 @@ class _CourseEnrollState extends State<CourseEnroll> {
                               ),
                               child: InkWell(
                                 onTap: () {
-                                  if (enrolled) {
-                                    if (_topicList[i].available == null) {
-                                      counter_timer();
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => CourseModules(
-                                            topic: _topicList[i],
-                                            courseId: course.id.toString(),
-                                          ),
-                                        ),
-                                      );
-                                    } else {
-                                      _showRestricted(_topicList[i].available);
-                                    }
-                                  } else {}
+                                  setState(() {
+                                    eventtype='coursemodule';
+                                  });
+                                  _connectionCheck(context,_topicList,i);
                                 },
                                 child: Row(
                                   children: <Widget>[
@@ -571,6 +722,7 @@ class _CourseEnrollState extends State<CourseEnroll> {
                                       ),
                                     ),
                                     Container(
+                                      width: MediaQuery.of(context).size.width-116,
                                       padding: EdgeInsets.only(left: 16.0),
                                       child: Column(
                                         mainAxisAlignment:

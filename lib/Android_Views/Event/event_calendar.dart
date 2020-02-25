@@ -11,6 +11,8 @@ import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:html/parser.dart' as html;
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
+import 'package:connectivity/connectivity.dart';
+import 'dart:async';
 
 class CalendarEventView extends StatefulWidget {
   @override
@@ -27,6 +29,41 @@ class _CalendarEventViewState extends State<CalendarEventView>
   DateTime _selectedDay;
   List _selectedEvents;
   bool _loading = true;
+  String eventtype;
+
+
+  _connectionCheck(BuildContext context) async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      if(eventtype == 'drawer'){
+        _scaffoldKey.currentState.openDrawer();
+      }
+      else if(eventtype == 'fetchtimeout') {
+        _getEvents();
+      }
+    } 
+    else if(connectivityResult == ConnectivityResult.none){
+      print("here");
+      AlertDialog alertDialog = AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        title: Text('Mobile Connection Lost'),
+        content: Text('Please connect to your wifi or turn on mobile data and try again'),
+        actions: <Widget>[
+          FlatButton(onPressed: (){
+            Navigator.pop(context);
+            _connectionCheck(context);
+          }, child: Text('Try again'))
+        ],
+      );
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => alertDialog
+      );
+    }
+  }
 
   countertimer(){
   AutoLogoutMethod.autologout.counter(context);
@@ -46,8 +83,11 @@ class _CalendarEventViewState extends State<CalendarEventView>
   }
 
   _getEvents() async {
+    try{
     List<Event> eventList = [];
+    eventList.clear();
     var eventUrl = '$urlLink/$token/events/';
+    print(eventUrl);
     await http.get(eventUrl).then((response) {
       var events = json.decode(response.body);
       for (var event in events['events']) {
@@ -76,6 +116,18 @@ class _CalendarEventViewState extends State<CalendarEventView>
     setState(() {
       _loading = false;
     });
+    }
+    on TimeoutException catch (_) {
+      setState(() {
+        eventtype = 'fetchtimeout';
+      });
+      _connectionCheck(context);
+    } catch (e) {
+      setState(() {
+        eventtype = 'fetchtimeout';
+      });
+      _connectionCheck(context);
+    }
   }
 
   @override
@@ -85,6 +137,7 @@ class _CalendarEventViewState extends State<CalendarEventView>
   }
 
   void _onDaySelected(DateTime day, List events) {
+    countertimer();
     setState(() {
       _selectedDay = day;
       _selectedEvents = events;
@@ -92,7 +145,8 @@ class _CalendarEventViewState extends State<CalendarEventView>
   }
 
   void _onVisibleDaysChanged(
-      DateTime first, DateTime last, CalendarFormat format) {
+    DateTime first, DateTime last, CalendarFormat format) {
+    countertimer();
     setState(() {
       _visibleEvents = Map.fromEntries(
         _events.entries.where(
@@ -122,7 +176,10 @@ class _CalendarEventViewState extends State<CalendarEventView>
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
           onPressed: () {
-            _scaffoldKey.currentState.openDrawer();
+            setState(() {
+              eventtype='drawer';
+            });
+            _connectionCheck(context);
           },
           icon: Image.asset(
             'images/menu.png',
@@ -284,7 +341,18 @@ class _CalendarEventViewState extends State<CalendarEventView>
                 ),
               ),
             ),
-            Expanded(
+            _selectedEvents.length == 0
+            ?Container(
+              padding: EdgeInsets.symmetric(vertical: 100),
+              child: Center(
+                child: Text('There is no events today',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold, color: Colors.grey[600]
+                  ),
+                ),
+              ),
+            )
+            :Expanded(
               child: ListView(
                 children: _selectedEvents
                     .map(
@@ -311,7 +379,7 @@ class _CalendarEventViewState extends State<CalendarEventView>
                             Container(
                               padding: EdgeInsets.only(top: 8.0, bottom: 4.0),
                               child: Text(
-                                html.parse(event.name).body.text.toString(),
+                                "${html.parse(event.name).body.text.toString()} (${html.parse(event.type).body.text.toString()})",
                                 style: TextStyle(
                                   fontSize: 18.0,
                                   fontWeight: FontWeight.w500,
@@ -319,14 +387,28 @@ class _CalendarEventViewState extends State<CalendarEventView>
                                 ),
                               ),
                             ),
+                            Container(
+                              padding: EdgeInsets.only(top: 8.0, bottom: 4.0),
+                              child: Text(
+                                '${html.parse(event.description).body.text.toString()}',
+                                style: TextStyle(
+                                  fontSize: 15.0,
+                                  color: Colors.black54,
+                                ),
+                              ),
+                            ),
                             Row(
                               children: [
-                                Icon(
+                                event.location == ""
+                                ?Container()
+                                :Icon(
                                   Icons.location_on,
                                   color: Color.fromRGBO(0, 51, 118, .65),
                                   size: 16.0,
                                 ),
-                                Container(
+                                event.location == ""
+                                ?Container()
+                                :Container(
                                   padding: EdgeInsets.only(
                                       top: 4.0, bottom: 8.0, left: 6.0),
                                   child: Text(
@@ -338,6 +420,63 @@ class _CalendarEventViewState extends State<CalendarEventView>
                                       height: 1.15,
                                     ),
                                   ),
+                                ),
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                Row(
+                                  children: <Widget>[
+                                    event.timestart == ""
+                                    ?Container()
+                                    :Icon(
+                                      Icons.alarm,
+                                      color: Color.fromRGBO(0, 51, 118, .65),
+                                      size: 16.0,
+                                    ),
+                                    event.timestart == ""
+                                    ?Container()
+                                    :Container(
+                                      padding: EdgeInsets.only(
+                                          top: 4.0, bottom: 8.0, left: 6.0),
+                                      margin: EdgeInsets.only(right: 10),
+                                      child: Text(
+                                        event.timestart,
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.black54,
+                                          height: 1.15,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: <Widget>[
+                                    event.location == ""
+                                    ?Container()
+                                    :Icon(
+                                      Icons.location_on,
+                                      color: Color.fromRGBO(0, 51, 118, .65),
+                                      size: 16.0,
+                                    ),
+                                    event.location == ""
+                                    ?Container()
+                                    :Container(
+                                      padding: EdgeInsets.only(
+                                          top: 4.0, bottom: 8.0, left: 6.0),
+                                      child: Text(
+                                        event.location,
+                                        style: TextStyle(
+                                          fontSize: 16.0,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.black54,
+                                          height: 1.15,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ],
                             ),

@@ -430,7 +430,9 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin{
           style: TextStyle(color: Colors.amber),
         ),
         actions: <Widget>[
-          Container(
+          timelimit == 0
+          ?Container()
+          :Container(
             height: 5,
             margin: EdgeInsets.symmetric(horizontal: 10),
             padding: EdgeInsets.symmetric(horizontal: 10),
@@ -438,10 +440,6 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin{
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(8.0),
                 bottomRight: Radius.circular(8.0),
-              ),
-              border: Border.all(
-                width: 1.5,
-                color: Colors.white,
               ),
             ),
             child:Row(

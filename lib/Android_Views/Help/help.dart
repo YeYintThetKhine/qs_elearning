@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:moodle_test/ThemeColors/colors.dart';
 import './userguide.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
+import 'package:connectivity/connectivity.dart';
 
 class Help extends StatefulWidget {
   @override
@@ -9,6 +10,40 @@ class Help extends StatefulWidget {
 }
 
 class _HelpState extends State<Help> {
+
+  _connectionCheck(context) async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) =>
+              Userguide(),
+        ),
+      );
+    } 
+    else if(connectivityResult == ConnectivityResult.none){
+      print("here");
+      AlertDialog alertDialog = AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10.0),
+        ),
+        title: Text('Mobile Connection Lost'),
+        content: Text('Please connect to your wifi or turn on mobile data and try again'),
+        actions: <Widget>[
+          FlatButton(onPressed: (){
+            Navigator.pop(context);
+            _connectionCheck(context);
+          }, child: Text('Try again'))
+        ],
+      );
+      showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (_) => alertDialog
+      );
+    }
+  }
 
   countertimer(){
     AutoLogoutMethod.autologout.counter(context);
@@ -40,13 +75,7 @@ class _HelpState extends State<Help> {
             GestureDetector(
               onTap: (){
                 countertimer();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (BuildContext context) =>
-                        Userguide(),
-                  ),
-                );
+                _connectionCheck(context);
               },
             child:Container(
               margin: EdgeInsets.symmetric(horizontal: 15,vertical: 5),
