@@ -3,14 +3,17 @@ import 'package:moodle_test/ThemeColors/colors.dart';
 import './userguide.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 import 'package:connectivity/connectivity.dart';
+import '../../DrawerTheme/drawerdetect.dart';
+import 'package:moodle_test/Model/user.dart';
+import 'package:moodle_test/Android_Views/Dashboard/drawer.dart';
 
 class Help extends StatefulWidget {
   @override
   _HelpState createState() => _HelpState();
 }
 
-class _HelpState extends State<Help> {
-
+class _HelpState extends State<Help>{
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   _connectionCheck(context) async{
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
@@ -52,6 +55,7 @@ class _HelpState extends State<Help> {
   @override
   void initState() {
     super.initState();
+    currentPage = 'help';
     countertimer();
   }
 
@@ -63,12 +67,26 @@ class _HelpState extends State<Help> {
         countertimer();
       },
     child:Scaffold(
+      key: _scaffoldKey,
       backgroundColor: mBlue,
       appBar: AppBar(
         elevation: 0.0,
         title: Text('Help'),
         automaticallyImplyLeading: true,
+        leading: IconButton(
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          onPressed: () {
+            _scaffoldKey.currentState.openDrawer();
+          },
+          icon: Image.asset(
+            'images/menu.png',
+            width: 24.0,
+            color: mWhite,
+          ),
+        ),
       ),
+      drawer: drawer(currentUser, context),
       body:SingleChildScrollView(
         child:Column(
           children: <Widget>[

@@ -13,6 +13,7 @@ import 'package:html/parser.dart' as html;
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 import 'package:connectivity/connectivity.dart';
 import 'dart:async';
+import '../../DrawerTheme/drawerdetect.dart';
 
 class CalendarEventView extends StatefulWidget {
   @override
@@ -72,6 +73,7 @@ class _CalendarEventViewState extends State<CalendarEventView>
   @override
   void initState() {
     super.initState();
+    currentPage = 'event';
     countertimer();
     _controller = AnimationController(
       vsync: this,

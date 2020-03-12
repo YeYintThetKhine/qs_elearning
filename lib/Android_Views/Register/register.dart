@@ -29,6 +29,7 @@ class _RegistryState extends State<Registry> {
   var errorResponse;
   String errorType;
   String errorMessage;
+  List<Department> currentdepartment = [];
 
   static const List<String> deparments = [
     'CB Insurance',
@@ -83,6 +84,32 @@ class _RegistryState extends State<Registry> {
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _repasswordController = TextEditingController();
   TextEditingController _positionController = TextEditingController();
+
+  _department() async {
+    var progressUrl =
+        '$urlLink/getdep/';
+        print(urlLink);
+    await http.get(progressUrl).then((response) {
+      var results = json.decode(response.body);
+      print(results['dep_data'][0]);
+      for (var result in results['dep_data']) {
+        currentdepartment.add(
+          Department(
+            depid: result['id'].toString(),
+            name: result['name'],
+          ),
+        );
+      }
+      print(currentdepartment[0].name);
+    });
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _department();
+  }
+
 
   _signUp() async {
     setState(() {
@@ -340,7 +367,7 @@ class _RegistryState extends State<Registry> {
                         // isExpanded: true
                         decoration: InputDecoration(
                             border: UnderlineInputBorder(),
-                            labelText: 'Type',
+                            labelText: 'Entity',
                             helperText: 'Choose the type of training',
                             contentPadding:
                                 EdgeInsets.only(top: 10, bottom: 8.0)),

@@ -31,6 +31,7 @@ class _CourseEnrollState extends State<CourseEnroll> {
   bool loading = true;
   bool connectionreload = false;
   double progress = 0.0;
+  bool progresscheck = false;
 
   String eventtype='';
 
@@ -38,27 +39,19 @@ class _CourseEnrollState extends State<CourseEnroll> {
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
       if(eventtype == 'checkenrolled'){
-        setState(() {
           connectionreload=false;
-        });
         _checkEnrolled(course.id);
       }
       else if (eventtype == 'fetchtimeout') {
-        setState(() {
           connectionreload=false;
-        });
       }
       else if(eventtype == 'drawer'){
-        setState(() {
           connectionreload=false;
-        });
           _checkEnrolled(course.id);
         _scaffoldKey.currentState.openDrawer();
       }
       else if(eventtype == 'coursemodule') {
-        setState(() {
           connectionreload=false;
-        });
         if (enrolled) {
           if (_topicList[i].available == null) {
             counter_timer();
@@ -74,7 +67,26 @@ class _CourseEnrollState extends State<CourseEnroll> {
           } else {
             _showRestricted(_topicList[i].available);
           }
-        } else {}
+        } else {
+          AlertDialog alertDialog = AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            title: Text('Access Denied'),
+            content: Text('You can not access this course unless you are enrolled'),
+            actions: <Widget>[
+              FlatButton(onPressed: (){
+                  loading = false;
+                Navigator.pop(_scaffoldKey.currentContext);
+              }, child: Text('OK'))
+            ],
+          );
+          showDialog(
+              context: _scaffoldKey.currentContext,
+              barrierDismissible: false,
+              builder: (_) => alertDialog
+          );
+        }
       }
     } 
     else if(connectivityResult == ConnectivityResult.none){
@@ -166,23 +178,24 @@ class _CourseEnrollState extends State<CourseEnroll> {
     });
     }
       on TimeoutException catch (_) {
-      setState(() {
         eventtype = 'checkenrolled';
-      });
       _connectionCheck(context,[],0);
-    } catch (e) {
-      setState(() {
+    } 
+    catch (e) {
         eventtype = 'checkenrolled';
-      });
       _connectionCheck(context,[],0);
     }
   }
 
   Future<Course> _getModuleProgress() async {
+    setState(() {
+      progresscheck = true;
+    });
     Course currentCourse;
     var response;
     var progressUrl =
         '$urlLink/$token/${currentUser.id}/course/${course.id}/progress/';
+
       try {
         response = await http.get(progressUrl).timeout(
               Duration(seconds: 20),
@@ -191,34 +204,42 @@ class _CourseEnrollState extends State<CourseEnroll> {
         setState(() {
           connectionreload = true;
         });
-      } catch (e) {
+      }
+      catch (e) {
         setState(() {
           connectionreload = true;
         });
       }
+
     await http.get(progressUrl).then((response) {
       var result = json.decode(response.body);
-      currentCourse = Course(
-        id: result['id'],
-        courseName: result['fullname'],
-        courseDesc: result['summary'],
-        courseCategory: result['category'],
-        courseImgURL: result['overviewfiles'][0]['fileurl'],
-        favourite: result['isfavourite'],
-        progress:
-            result['progress'] == null ? 0.0 : result['progress'].toDouble(),
-      );
+      if(result != null){
+        currentCourse = Course(
+          id: result['id'],
+          courseName: result['fullname'],
+          courseDesc: result['summary'],
+          courseCategory: result['category'],
+          courseImgURL: result['overviewfiles'][0]['fileurl'],
+          favourite: result['isfavourite'],
+          progress:
+              result['progress'] == null || result['progress'] == 0 ? 0.0 : result['progress'].toDouble(),
+        );
+      }
+      else{
+        setState(() {
+          progresscheck = true;
+        });
+      }
     }).then((value) {
-    print('completed with value $value');
-  }, onError: (error) async{
-    print('completed with error $error');
-    AutoLogoutMethod.autologout.counter(context);
-  });
+      }, onError: (error) async{
+        AutoLogoutMethod.autologout.counter(context);
+      });
     return currentCourse;
   }
 
   Future<List<Topic>> _getCourseModule() async {
     List<Topic> _topicList = [];
+    try{
     var modUrl = '$urlLink/$token/course/${course.id}/modules/';
     var response;
       try {
@@ -284,7 +305,16 @@ class _CourseEnrollState extends State<CourseEnroll> {
           }
         }
       }
-    });
+    }).then((value) {
+      }, onError: (error) async{
+        AutoLogoutMethod.autologout.counter(context);
+      });
+    }
+    on NoSuchMethodError catch (_) {
+      _getCourseModule();
+    } catch (e) {
+      _getCourseModule();
+    }
     return _topicList;
   }
 
@@ -308,38 +338,61 @@ class _CourseEnrollState extends State<CourseEnroll> {
                     loading = true;
                   });
                   var enrolUrl = '$urlLink/$token/enrol/${course.id}/';
-                  print(enrolUrl);
                   await http.get(enrolUrl).then((response) async {
                     var msg = json.decode(response.body);
-                    if (msg['status']) {
-                      await _checkEnrolled(course.id);
-                      await _getCourseModule();
-                      setState(() {
-                        enrolled = true;
-                        loading = false;
-                      });
-                    } else {
-                      await _checkEnrolled(course.id);
-                      await _getCourseModule();
-                      setState(() {
-                        enrolled = false;
-                        loading = false;
-                      });
+                    if(msg['status'] == "false"){
+                      AlertDialog alertDialog = AlertDialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        title: Text('Cant Enroll'),
+                        content: Text('You cant enroll this course by yourself. Please contact the admin to enroll this course.'),
+                        actions: <Widget>[
+                          FlatButton(onPressed: (){
+                            setState(() {
+                              loading = false;
+                            });
+                            Navigator.pop(_scaffoldKey.currentContext);
+                          }, child: Text('OK'))
+                        ],
+                      );
+                      showDialog(
+                          context: _scaffoldKey.currentContext,
+                          barrierDismissible: false,
+                          builder: (_) => alertDialog
+                      );
+                    }
+                    else{
+                      if (msg['status']) {
+                        await _checkEnrolled(course.id);
+                        await _getCourseModule();
+                        setState(() {
+                          enrolled = true;
+                          loading = false;
+                        });
+                      } else {
+                        await _checkEnrolled(course.id);
+                        await _getCourseModule();
+                        setState(() {
+                          enrolled = false;
+                          loading = false;
+                        });
+                      }
                     }
                   }).then((value) {
-                    _scaffoldKey.currentState.showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          'Course enrollment successful.',
-                          style: TextStyle(color: mBlue),
+                    if(enrolled == true){
+                      _scaffoldKey.currentState.showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'Course enrollment successful.',
+                            style: TextStyle(color: mBlue),
+                          ),
+                          backgroundColor: Colors.white,
+                          duration: Duration(seconds: 2),
                         ),
-                        backgroundColor: Colors.white,
-                        duration: Duration(seconds: 2),
-                      ),
-                    );
-                    print('$value');
+                      );
+                    }
                   }, onError: (error) async{
-                    print('$error');
                     AutoLogoutMethod.autologout.counter(context);
                   });
                 },
@@ -386,7 +439,9 @@ class _CourseEnrollState extends State<CourseEnroll> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: counter_timer,
+      onTap: (){
+        counter_timer();
+      },
     child: Scaffold(
       key: _scaffoldKey,
       appBar: AppBar(
@@ -405,9 +460,7 @@ class _CourseEnrollState extends State<CourseEnroll> {
           highlightColor: Colors.transparent,
           splashColor: Colors.transparent,
           onPressed: () {
-            setState(() {
               eventtype='drawer';
-            });
             _connectionCheck(context,[],0);
             counter_timer();
           },
@@ -497,6 +550,27 @@ class _CourseEnrollState extends State<CourseEnroll> {
                                 ),
                                 connectionreload == true
                                 ? Container()
+                                :progresscheck == true
+                                ?Container(
+                                            padding: EdgeInsets.only(
+                                                right: 32.0, top: 8.0),
+                                            child: CircularPercentIndicator(
+                                              radius: 60.0,
+                                              lineWidth: 5.0,
+                                              animation: true,
+                                              percent: 0.0,
+                                              circularStrokeCap:
+                                                  CircularStrokeCap.round,
+                                              progressColor: Colors.amber,
+                                              backgroundColor: Color.fromRGBO(
+                                                  255, 255, 255, 0.15),
+                                              center: Text('0.0%',
+                                                style: TextStyle(
+                                                    color: Color(0xFFFFFFFF),
+                                                    fontSize: 16.0),
+                                              ),
+                                            ),
+                                          )
                                 :enrolled == false
                                     ? Container(
                                         width: 75.0,
@@ -534,8 +608,11 @@ class _CourseEnrollState extends State<CourseEnroll> {
                                           } else {
                                             if (snapshot.data.progress ==
                                                 null) {
+                                              print('passed here 1');
                                               progress = 0.0;
-                                            } else {
+                                            } 
+                                            else {
+                                              print('passed here 2');
                                               progress = snapshot.data.progress;
                                             }
                                           }
@@ -706,9 +783,7 @@ class _CourseEnrollState extends State<CourseEnroll> {
                               ),
                               child: InkWell(
                                 onTap: () {
-                                  setState(() {
                                     eventtype='coursemodule';
-                                  });
                                   _connectionCheck(context,_topicList,i);
                                 },
                                 child: Row(

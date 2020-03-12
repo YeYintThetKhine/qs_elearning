@@ -391,14 +391,14 @@ class _LandingPageState extends State<LandingPage> {
                     ),
                   ),
                 ),
-                // Container(
-                //   alignment: Alignment.center,
-                //   child: Image.asset(
-                //     'images/logonew.png',
-                //     width: 250,
-                //     height: 250,
-                //   ),
-                // )
+                Container(
+                  alignment: Alignment.center,
+                  child: Image.asset(
+                    'images/logonew.png',
+                    width: 250,
+                    height: 250,
+                  ),
+                )
               ],
             ),
           ),

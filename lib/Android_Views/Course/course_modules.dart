@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'package:flutter/material.dart';
 import 'package:flutter/painting.dart';
 import 'package:flutter/widgets.dart';
@@ -45,18 +46,15 @@ class _CourseModulesState extends State<CourseModules> {
   bool connectionreload = false;
 
   _connectionCheck(context,i) async{
+    connectionreload = false;
     var connectivityResult = await (Connectivity().checkConnectivity());
     if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
       if(eventtype == 'drawer'){
-        setState(() {
-          connectionreload = false;
-        });
         _scaffoldKey.currentState.openDrawer();
       }
+      else if(eventtype == 'initail'){
+      }
       else if(eventtype == 'resource') {
-        setState(() {
-          connectionreload = false;
-        });
         Navigator.push(
               context,
               MaterialPageRoute(
@@ -68,9 +66,6 @@ class _CourseModulesState extends State<CourseModules> {
             );
       }
       else if(eventtype == 'lesson') {
-        setState(() {
-          connectionreload = false;
-        });
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -81,15 +76,11 @@ class _CourseModulesState extends State<CourseModules> {
         );
       }
       else if(eventtype == 'quiz') {
-        setState(() {
-          connectionreload = false;
-        });
-        topic.modules[i].usercurrentattempts == topic.modules[i].maxattempts && topic.modules[i].maxattempts != 0
-        ?_quizAttemptCheckDialog(topic.modules[i].maxattempts)
-        :_startQuiz(topic.modules[i],topic.modules[i].timelimit);
+      _startQuiz(topic.modules[i],100);
       }
     } 
     else if(connectivityResult == ConnectivityResult.none){
+      eventtype = 'initail';
       showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -103,7 +94,7 @@ class _CourseModulesState extends State<CourseModules> {
             content: Text('Please connect to your wifi or turn on mobile data and try again'),
             actions: <Widget>[
               FlatButton(onPressed: (){
-                Navigator.of(context, rootNavigator: true).pop('dialog');
+                Navigator.pop(context);
                 _connectionCheck(context,i);
               }, child: Text('Try again'))
             ],
@@ -159,51 +150,27 @@ class _CourseModulesState extends State<CourseModules> {
 
     String uid = currentUser.id;
     var quizAdditionalUrl = '$urlLink/$token/quizinfo/course/$courseId/user/$uid/';
-    await http.get(quizAdditionalUrl).then((response) {
-      var data = json.decode(response.body);
-        for (var quiz in data['quiz_info']) {
-          _quizDetailList.add(
-            QuizAdditionalDetail(
-              quizid:quiz['quizid'],
-              courseid:quiz['courseid'],
-              moduleid:quiz['moduleid'],
-              name:quiz['name'],
-              timelimit:quiz['timelimit'],
-              maxattempts:quiz['maxattempts'],
-              usercurrentattempts:quiz['usercurrentattempts'],
-            ),
-          );
-        }
-    });
+    print(quizAdditionalUrl);
+    // await http.get(quizAdditionalUrl).then((response) {
+    //   var data = json.decode(response.body);
+    //     for (var quiz in data['quiz_info']) {
+    //       _quizDetailList.add(
+    //         QuizAdditionalDetail(
+    //           quizid:quiz['quizid'],
+    //           courseid:quiz['courseid'],
+    //           moduleid:quiz['moduleid'],
+    //           name:quiz['name'],
+    //           timelimit:quiz['timelimit'],
+    //           maxattempts:quiz['maxattempts'],
+    //           usercurrentattempts:quiz['usercurrentattempts'],
+    //         ),
+    //       );
+    //     }
+    // });
 
       if (mods[0]['modules'].length > 0) {
         List<Module> _moduleList = [];
         for (var module in mods[0]['modules']) {
-          if(module['modname']=="quiz"){
-            _moduleList.add(
-              Module(
-                id: module['id'].toString(),
-                instance: module['instance'].toString(),
-                moduleType: module['modname'],
-                name: module['name'],
-                url: module['contents'] != null
-                    ? module['contents'][0]['fileurl']
-                    : null,
-                completeStatus: module['completiondata'] == null
-                    ? 0
-                    : module['completiondata']['state'],
-                completeTime: module['completiondata'] == null
-                    ? 0
-                    : module['completiondata']['timecompleted'],
-                available: module['availabilityinfo'],
-                timelimit:_quizDetailList[quiznum].timelimit,
-                maxattempts:_quizDetailList[quiznum].maxattempts,
-                usercurrentattempts:_quizDetailList[quiznum].usercurrentattempts,
-              ),
-            );
-            quiznum++;
-          }
-          else{
             _moduleList.add(
               Module(
                 id: module['id'].toString(),
@@ -225,7 +192,6 @@ class _CourseModulesState extends State<CourseModules> {
                 usercurrentattempts:-1,
               ),
             );
-          }
         }
         topic = Topic(
           id: mods[0]['id'].toString(),
@@ -240,7 +206,7 @@ class _CourseModulesState extends State<CourseModules> {
           name: mods[0]['name'],
           desc: mods[0]['summary'],
           available: mods[0]['availabilityinfo'],
-          modules: null,
+          modules: [],
         );
       }
     }).then((value) {
@@ -347,15 +313,17 @@ class _CourseModulesState extends State<CourseModules> {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-    onTap: counter_timer,
+    onTap: (){
+      counter_timer();
+    },
     child: Scaffold(
       key: _scaffoldKey,
       backgroundColor: mBlue,
       appBar: AppBar(
-        title: Text(
-          topic.name,
-          style: TextStyle(color: Colors.amber),
-        ),
+        // title: Text(
+        //   topic.name,
+        //   style: TextStyle(color: Colors.amber),
+        // ),
         elevation: 0.0,
         automaticallyImplyLeading: false,
         actions: <Widget>[
@@ -436,6 +404,18 @@ class _CourseModulesState extends State<CourseModules> {
                     [
                       Container(
                         padding:
+                            EdgeInsets.only(left: 16.0, right: 16.0, top: 5.0),
+                        child: Text(
+                          topic.name,
+                          style: TextStyle(
+                            color: Colors.amber,
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding:
                             EdgeInsets.only(left: 16.0, right: 16.0, top: 16.0),
                         child: Text(
                           'Description'.toUpperCase(),
@@ -474,7 +454,17 @@ class _CourseModulesState extends State<CourseModules> {
                     ],
                   ),
                 ),
-                SliverList(
+                topic.modules.length == 0
+                ?SliverList(delegate: SliverChildListDelegate(
+                  [
+                    Center(
+                      child: Text('There is no module for this course',
+                        style: TextStyle(color:Colors.white),
+                      ),
+                    ),
+                  ]
+                ))
+                :SliverList(
                   delegate: SliverChildBuilderDelegate(
                     (context, i) {
                       return Container(
@@ -486,21 +476,15 @@ class _CourseModulesState extends State<CourseModules> {
                               _showRestricted(topic.modules[i].available);
                             } else {
                               if (topic.modules[i].moduleType == 'resource') {
-                                setState(() {
                                   eventtype = 'resource';
-                                });
                                 _connectionCheck(context,i);
                               } else if (topic.modules[i].moduleType ==
                                   'lesson') {
-                                setState(() {
                                   eventtype = 'lesson';
-                                });
                                 _connectionCheck(context, i);
                               } else {
-                                setState(() {
                                   eventtype = 'quiz';
-                                });
-                                _connectionCheck(context, i);
+                                  _connectionCheck(context, i);
                               }
                             }
                           },
@@ -510,13 +494,16 @@ class _CourseModulesState extends State<CourseModules> {
                             children: <Widget>[
                               Row(
                                 children: <Widget>[
+                                  topic.modules[i].available == null
+                                  ?
                                   Icon(
                                     Icons.check_circle,
                                     color: topic.modules[i].completeStatus == 1
                                         ? Colors.greenAccent
                                         : Colors.white70,
                                     size: 18.0,
-                                  ),
+                                  )
+                                  :Icon(Icons.warning,color: Colors.redAccent,),
                                   Container(
                                     padding: EdgeInsets.only(left: 8.0),
                                     child: topic.modules[i].moduleType ==
@@ -533,7 +520,7 @@ class _CourseModulesState extends State<CourseModules> {
                                           ),
                                   ),
                                   Container(
-                                    width: MediaQuery.of(context).size.width-222,
+                                    width: MediaQuery.of(context).size.width-100,
                                     padding: EdgeInsets.only(left: 8.0),
                                     child: Text(
                                       topic.modules[i].name,
@@ -543,84 +530,78 @@ class _CourseModulesState extends State<CourseModules> {
                                           fontSize: 16.0),
                                     ),
                                   ),
-                                  topic.modules[i].maxattempts == -1
-                                  ?Container()
-                                  :topic.modules[i].available != null
-                                  ?Container()
-                                  :topic.modules[i].maxattempts == null
-                                  ?Container()
-                                  :topic.modules[i].maxattempts == 0
-                                  ?Container(
-                                    margin: EdgeInsets.only(left:10),
-                                    child: Row(
-                                      children:[
-                                        Container(
-                                          padding: EdgeInsets.symmetric(vertical: 3,horizontal: 3),
-                                          decoration: BoxDecoration(
-                                              color: Colors.amber,
-                                              border: Border.all(
-                                                color: Colors.white,
-                                                width: 2,
-                                              ),
-                                              borderRadius: BorderRadius.circular(5),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                            'Attempt: Free',
-                                            style: TextStyle(
-                                                color: mBlue,
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                        ),
-                                      ]
-                                    ),
-                                  )
-                                  :Container(
-                                    margin: EdgeInsets.only(left:10),
-                                    child: Row(
-                                      children:[
-                                        Container(
-                                          padding: EdgeInsets.symmetric(vertical: 3,horizontal: 3),
-                                          decoration: BoxDecoration(
-                                              color: Colors.amber,
-                                              border: Border.all(
-                                                color: Colors.white,
-                                                width: 2,
-                                              ),
-                                              borderRadius: BorderRadius.circular(5),
-                                          ),
-                                          child: Center(
-                                            child: Text(
-                                            'Attempt: ${topic.modules[i].usercurrentattempts.toString()}/${topic.modules[i].maxattempts.toString()}',
-                                            style: TextStyle(
-                                                color: mBlue,
-                                                fontSize: 16.0,
-                                                fontWeight: FontWeight.bold),
-                                            ),
-                                          ),
-                                        ),
-                                      ]
-                                    ),
-                                  ),
-                                  topic.modules[i].available == null
-                                      ? Container()
-                                      : Container(
-                                          decoration: BoxDecoration(
-                                            color: Colors.white,
-                                            borderRadius:
-                                                BorderRadius.circular(5.0),
-                                          ),
-                                          padding: EdgeInsets.all(6.0),
-                                          child: Text(
-                                            'Restricted'.toUpperCase(),
-                                            style: TextStyle(
-                                                color: Colors.red,
-                                                fontSize: 14.0,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                        ),
+                                  // topic.modules[i].maxattempts == -1
+                                  // ?Container()
+                                  // :topic.modules[i].available != null
+                                  // ?Container()
+                                  // :topic.modules[i].maxattempts == null
+                                  // ?Container()
+                                  // :topic.modules[i].maxattempts == 0
+                                  // ?Container(
+                                  //   margin: EdgeInsets.only(left:10),
+                                  //   child: Row(
+                                  //     children:[
+                                  //       Container(
+                                  //         padding: EdgeInsets.symmetric(vertical: 3,horizontal: 3),
+                                  //         decoration: BoxDecoration(
+                                  //             color: Colors.amber,
+                                  //             border: Border.all(
+                                  //               color: Colors.white,
+                                  //               width: 2,
+                                  //             ),
+                                  //             borderRadius: BorderRadius.circular(5),
+                                  //         ),
+                                  //         child: Center(
+                                  //           child: Text(
+                                  //           'Attempt: Free',
+                                  //           style: TextStyle(
+                                  //               color: mBlue,
+                                  //               fontSize: 16.0,
+                                  //               fontWeight: FontWeight.bold),
+                                  //           ),
+                                  //         ),
+                                  //       ),
+                                  //     ]
+                                  //   ),
+                                  // )
+                                  // :Container(
+                                  //   margin: EdgeInsets.only(left:10),
+                                  //   child: Row(
+                                  //     children:[
+                                  //       Container(
+                                  //         padding: EdgeInsets.symmetric(vertical: 3,horizontal: 3),
+                                  //         decoration: BoxDecoration(
+                                  //             color: Colors.amber,
+                                  //             border: Border.all(
+                                  //               color: Colors.white,
+                                  //               width: 2,
+                                  //             ),
+                                  //             borderRadius: BorderRadius.circular(5),
+                                  //         ),
+                                  //         child: Center(
+                                  //           child: Text(
+                                  //           'Attempt: ${topic.modules[i].usercurrentattempts.toString()}/${topic.modules[i].maxattempts.toString()}',
+                                  //           style: TextStyle(
+                                  //               color: mBlue,
+                                  //               fontSize: 16.0,
+                                  //               fontWeight: FontWeight.bold),
+                                  //           ),
+                                  //         ),
+                                  //       ),
+                                  //     ]
+                                  //   ),
+                                  // ),
+                                  // topic.modules[i].available == null
+                                  //     ? Container()
+                                  //     : Container(
+                                  //         decoration: BoxDecoration(
+                                  //           color: Colors.white,
+                                  //           borderRadius:
+                                  //               BorderRadius.circular(5.0),
+                                  //         ),
+                                  //         padding: EdgeInsets.all(6.0),
+                                  //         child: Icon(Icons.warning,color: Colors.redAccent,),
+                                  //       ),
                                 ],
                               ),
                             ],

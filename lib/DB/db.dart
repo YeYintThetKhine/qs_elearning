@@ -34,6 +34,7 @@ class PersonDatabaseProvider {
           "department TEXT"
           ")");
     });
+
   }
 
   addPersonToDatabase(Person person) async {

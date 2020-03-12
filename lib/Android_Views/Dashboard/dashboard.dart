@@ -17,6 +17,7 @@ import '../URL/url.dart';
 import '../../Model/user.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 import 'package:connectivity/connectivity.dart';
+import '../../DrawerTheme/drawerdetect.dart';
 
 
 class DashBoard extends StatefulWidget {
@@ -143,6 +144,7 @@ class _DashBoardState extends State<DashBoard> {
   @override
   void initState() {
     super.initState();
+    currentPage = 'dashboard';
     _connectionCheck();
     _courseOverview();
     _getRecentCourse();

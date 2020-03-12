@@ -4,6 +4,9 @@ import './about.dart';
 import './terms_conditions.dart';
 import '../../Model/user.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
+import '../../DrawerTheme/drawerdetect.dart';
+import 'package:moodle_test/Model/user.dart';
+import 'package:moodle_test/Android_Views/Dashboard/drawer.dart';
 
 
 class Setting extends StatefulWidget {
@@ -12,9 +15,16 @@ class Setting extends StatefulWidget {
 }
 
 class _SettingState extends State<Setting> {
-
+  GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey();
   countertimer(){
     AutoLogoutMethod.autologout.counter(context);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    currentPage = 'setting';
+    AutoLogoutMethod.autologout.counterstartpage(context);
   }
 
   @override
@@ -24,12 +34,26 @@ class _SettingState extends State<Setting> {
         countertimer();
       },
     child:Scaffold(
+      key: _scaffoldKey,
       backgroundColor: mBlue,
       appBar: AppBar(
         elevation: 0.0,
         title: Text('Setting'),
         automaticallyImplyLeading: true,
+        leading: IconButton(
+          highlightColor: Colors.transparent,
+          splashColor: Colors.transparent,
+          onPressed: () {
+            _scaffoldKey.currentState.openDrawer();
+          },
+          icon: Image.asset(
+            'images/menu.png',
+            width: 24.0,
+            color: mWhite,
+          ),
+        ),
       ),
+      drawer: drawer(currentUser, context),
       body:SingleChildScrollView(
         child:Column(
           children: <Widget>[

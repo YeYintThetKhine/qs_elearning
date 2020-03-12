@@ -10,7 +10,8 @@ import '../Help/help.dart';
 import 'package:moodle_test/DB/db.dart';
 import 'package:connectivity/connectivity.dart';
 import '../../Model/user.dart';
-
+import '../../DrawerTheme/drawerdetect.dart';
+import '../OfflineLesson/offline_lesson.dart';
 
 
   String eventtype="initial";
@@ -39,7 +40,7 @@ import '../../Model/user.dart';
 
   _connectionCheck(context) async{
     var connectivityResult = await (Connectivity().checkConnectivity());
-    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi)  {
       if(eventtype == "dashboard"){
         Navigator.pushReplacement(
         context,
@@ -63,8 +64,17 @@ import '../../Model/user.dart';
           ),
         );
       }
+      else if(eventtype == "offline_lesson"){
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                OfflineLesson(),
+          ),
+        );
+      }
       else if(eventtype == "help"){
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (BuildContext context) =>
@@ -73,7 +83,7 @@ import '../../Model/user.dart';
         );
       }
       else if(eventtype == "setting"){
-        Navigator.push(
+        Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (BuildContext context) =>
@@ -81,50 +91,8 @@ import '../../Model/user.dart';
           ),
         );
       }
-    } else if(connectivityResult == ConnectivityResult.mobile && connectivityResult == ConnectivityResult.wifi){
-      if(eventtype == "dashboard"){
-        Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => DashBoard()));
-      }
-      else if(eventtype == "categories"){
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => CategoryList(),
-          ),
-        );
-      }
-      else if(eventtype == "events"){
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) =>
-                CalendarEventView(),
-          ),
-        );
-      }
-      else if(eventtype == "help"){
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) =>
-                Help(),
-          ),
-        );
-      }
-      else if(eventtype == "setting"){
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) =>
-                Setting(),
-          ),
-        );
-      }
-    } 
-    else{
+    }
+    else if(connectivityResult == ConnectivityResult.none){
       showAlertDialog('Mobile Connection Lost', 'Please connect to your wifi or turn on mobile data and try again',context);
     }
   }
@@ -191,84 +159,118 @@ Widget drawer(User user, BuildContext context) {
                         // )
                         ),
                   ),
-                  ListTile(
+                  Container(
+                    color: currentPage=='category_list'?Colors.amber:mBlue,
+                    child: ListTile(
                     title: Text(
                       "Categories",
                       style: TextStyle(
-                        color: mWhite,
+                        color: currentPage=='category_list'?mBlue:mWhite,
                       ),
                     ),
                     leading: Icon(
                       Icons.category,
-                      color: mWhite,
+                      color: currentPage=='category_list'?mBlue:mWhite,
                     ),
                     onTap: () {
                       eventtype="categories";
                       _connectionCheck(context);
                     },
+                    ),
                   ),
-                  ListTile(
-                    onTap: (){
-                      eventtype="dashboard";
-                      _connectionCheck(context);
-                    },
+                  Container(
+                    color: currentPage=='dashboard'?Colors.amber:mBlue,
+                    child:ListTile(
+                      onTap: (){
+                        eventtype="dashboard";
+                        _connectionCheck(context);
+                      },
+                      title: Text(
+                        "Dashboard",
+                        style: TextStyle(
+                          color: currentPage=='dashboard'?mBlue:mWhite,
+                        ),
+                      ),
+                      leading: Icon(
+                        Icons.dashboard,
+                        color: currentPage=='dashboard'?mBlue:mWhite,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    color: currentPage=='event'?Colors.amber:mBlue,
+                    child:ListTile(
+                      onTap: () {
+                        eventtype="events";
+                        _connectionCheck(context);
+                      },
+                      title: Text(
+                        "Events",
+                        style: TextStyle(
+                          color: currentPage=='event'?mBlue:mWhite,
+                        ),
+                      ),
+                      leading: Icon(
+                        Icons.event_available,
+                        color: currentPage=='event'?mBlue:mWhite,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    color: currentPage=='offline_lesson'?Colors.amber:mBlue,
+                    child: ListTile(
                     title: Text(
-                      "Dashboard",
+                      "Offline Lesson",
                       style: TextStyle(
-                        color: mWhite,
+                        color: currentPage=='offline_lesson'?mBlue:mWhite,
                       ),
                     ),
                     leading: Icon(
-                      Icons.dashboard,
-                      color: mWhite,
+                      Icons.file_download,
+                      color: currentPage=='offline_lesson'?mBlue:mWhite,
                     ),
-                  ),
-                  ListTile(
                     onTap: () {
-                      eventtype="events";
+                      eventtype="offline_lesson";
                       _connectionCheck(context);
                     },
-                    title: Text(
-                      "Events",
-                      style: TextStyle(
-                        color: mWhite,
-                      ),
-                    ),
-                    leading: Icon(
-                      Icons.event_available,
-                      color: mWhite,
                     ),
                   ),
-                  ListTile(
-                    onTap: () {
-                      eventtype="help";
-                      _connectionCheck(context);
-                    },
-                    title: Text(
-                      "Help",
-                      style: TextStyle(
-                        color: mWhite,
+                  Container(
+                    color: currentPage=='help'?Colors.amber:mBlue,
+                    child:ListTile(
+                      onTap: () {
+                        eventtype="help";
+                        _connectionCheck(context);
+                      },
+                      title: Text(
+                        "Help",
+                        style: TextStyle(
+                          color: currentPage=='help'?mBlue:mWhite,
+                        ),
                       ),
-                    ),
-                    leading: Icon(
-                      Icons.help,
-                      color: mWhite,
+                      leading: Icon(
+                        Icons.help,
+                        color: currentPage=='help'?mBlue:mWhite,
+                      ),
                     ),
                   ),
-                  ListTile(
-                    onTap: () {
-                      eventtype="setting";
-                      _connectionCheck(context);
-                    },
-                    title: Text(
-                      "Setting",
-                      style: TextStyle(
-                        color: mWhite,
+                  Container(
+                    color: currentPage=='setting'?Colors.amber:mBlue,
+                    child:ListTile(
+                      onTap: () {
+                        eventtype="setting";
+                        _connectionCheck(context);
+                      },
+                      title: Text(
+                        "Setting",
+                        style: TextStyle(
+                          color: currentPage=='setting'?mBlue:mWhite,
+                        ),
                       ),
-                    ),
-                    leading: Icon(
-                      Icons.settings,
-                      color: mWhite,
+                      leading: Icon(
+                        Icons.settings,
+                        color: currentPage=='setting'?mBlue:mWhite,
+                      ),
                     ),
                   ),
                 ],

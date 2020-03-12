@@ -293,3 +293,61 @@ class QuizAdditionalDetail {
     this.usercurrentattempts,
   });
 }
+
+class Department {
+  String depid;
+  String name;
+
+  Department({
+    this.depid,
+    this.name,
+  });
+}
+
+class LessonDownload {
+  String id;
+  String userid;
+  String title;
+
+  LessonDownload({
+    this.id,
+    this.userid,
+    this.title,
+  });
+
+  factory LessonDownload.fromMap(Map<String, dynamic> json) => new LessonDownload(
+        id: json["id"],
+        userid: json["userid"],
+        title: json["title"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "id": id,
+        "userid": userid,
+        "title": title,
+      };
+}
+
+class LessonDetailDownload {
+  String lessonid;
+  String title;
+  String content;
+
+  LessonDetailDownload({
+    this.lessonid,
+    this.title,
+    this.content,
+  });
+
+  factory LessonDetailDownload.fromMap(Map<String, dynamic> json) => new LessonDetailDownload(
+        lessonid: json["lessonid"],
+        title: json["title"],
+        content: json["content"],
+      );
+
+  Map<String, dynamic> toMap() => {
+        "lessonid": lessonid,
+        "title": title,
+        "content": content,
+      };
+}

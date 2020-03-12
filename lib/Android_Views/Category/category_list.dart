@@ -12,6 +12,7 @@ import 'package:html/parser.dart' as html;
 import 'package:moodle_test/Android_Views/Category/course_view.dart';
 import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 import 'package:connectivity/connectivity.dart';
+import '../../DrawerTheme/drawerdetect.dart';
 
 class CategoryList extends StatefulWidget {
   @override
@@ -85,13 +86,49 @@ class _CategoryListState extends State<CategoryList> {
   @override
   void initState() {
     super.initState();
+    currentPage = 'category_list';
     _getCategory();
     AutoLogoutMethod.autologout.counterstartpage(context);
   }
 
+  // Future<List<Category>> _getCategory() async {
+  //   // _connectionCheck(0,0);
+  //   setState(() {
+  //     _loading = true;
+  //   });
+  //   _categoryList.clear();
+  //   var response;
+  //   var url = '$urlLink/$token/category/';
+  //   await http.get(url).then((data) async {
+  //     print(url);
+  //     var categories = json.decode(data.body);
+  //     for (var category in categories) {
+  //       List courses = category['courses'];
+  //       _categoryList.add(
+  //         Category(
+  //           id: category['id'],
+  //           name: category['name'],
+  //           desc: category['desc'],
+  //           totalCourse: category['courses'].length,
+  //           courses: courses,
+  //         ),
+  //       );
+  //     }
+  //     print(_categoryList[1].courses[0]['courseCategory']);
+  //     setState(() {
+  //       _loading = false;
+  //     });
+  //   }).then((value) {
+  //   print('completed with value $value');
+  // }, onError: (error) async{
+  //   print('completed with error $error');
+  //   AutoLogoutMethod.autologout.counter(context);
+  // });
+  //   return _categoryList;
+  // }
 
   Future<List<Category>> _getCategory() async {
-    _connectionCheck(0,0);
+    // _connectionCheck(0,0);
     setState(() {
       _loading = true;
     });
@@ -104,6 +141,7 @@ class _CategoryListState extends State<CategoryList> {
         List<Course> courses = [];
         var catid = category['id'];
         var url = '$urlLink/$token/category/$catid/courses/';
+        print(url);
         await http.get(url).then((result) {
           var coursedata = json.decode(result.body);
           if (coursedata['courses'].length == 0) {
@@ -132,12 +170,13 @@ class _CategoryListState extends State<CategoryList> {
           print('completed with error $error');
           AutoLogoutMethod.autologout.counter(context);
         });
+
         _categoryList.add(
           Category(
             id: category['id'],
             name: category['name'],
             desc: category['desc'],
-            totalCourse: category['courses'],
+            totalCourse: category['courses'].length,
             courses: courses,
           ),
         );

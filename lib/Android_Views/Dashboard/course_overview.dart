@@ -108,6 +108,12 @@ Widget courseOverViewWidget(List<Course> _courseList, String token) {
                             fontSize: 16.0,
                           ),
                         )
+                        :_courseList[index].progress == 0.0
+                        ?Text("Start now",
+                            style: TextStyle(
+                            color: mBlue,
+                            fontSize: 16.0,
+                          ),)
                         :Text("Still in progress",
                             style: TextStyle(
                             color: mBlue,

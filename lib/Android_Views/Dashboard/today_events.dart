@@ -487,7 +487,7 @@ Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
                               eventList[0].location == ""
                               ?Container()
                               :Padding(
-                                padding: EdgeInsets.only(left: 24.0),
+                                padding: EdgeInsets.only(left: 24.0,right:3),
                                 child: Icon(
                                   Icons.location_on,
                                   size: 14.0,
@@ -495,12 +495,14 @@ Widget todayEvents(List<Event> eventList, bool event, BuildContext context) {
                                 ),
                               ),
                               eventList[0].location == ""
-                              ?Text(
+                              ?Container()
+                              :Container(
+                                child: Text(
                                 eventList[0].location,
-                                style: TextStyle(
-                                    fontSize: 14.0, color: Colors.white),
-                              )
-                              :Container(),
+                                  style: TextStyle(
+                                      fontSize: 14.0, color: Colors.white),
+                                ),
+                              ),
                             ],
                           ),
                         ),
