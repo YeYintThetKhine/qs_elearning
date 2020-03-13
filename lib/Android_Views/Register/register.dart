@@ -40,13 +40,14 @@ class _RegistryState extends State<Registry> {
     "Actuarial & Product",
     "Admin",
     "Agency",
-    "Bancassurance",
     "Audit",
+    "Bancassurance",
     "Claim",
     "Finance",
-    "IT & Graphic",
-    "Underwriting",
     "HR",
+    "IT & Graphic",
+    "Product Strategy department",
+    "Underwriting",
     "Other"
   ];
 
@@ -393,7 +394,7 @@ class _RegistryState extends State<Registry> {
                             contentPadding:
                                 EdgeInsets.only(top: 10, bottom: 8.0)),
                         items: branchlist.map((item) {
-                          return new DropdownMenuItem<String>(
+                          return DropdownMenuItem<String>(
                               value: item, child: Text(item));
                         }).toList(),
                         onChanged: (value) {
