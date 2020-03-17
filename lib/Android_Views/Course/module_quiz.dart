@@ -24,8 +24,7 @@ class ModuleQuiz extends StatefulWidget {
       _ModuleQuizState(module: module, token: token, timelimit: timelimit);
 }
 
-class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin{
-    
+class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin {
   FlutterWebviewPlugin _flutterWebviewPlugin = FlutterWebviewPlugin();
 
   Module module;
@@ -44,7 +43,7 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin{
   bool formatexceptioncheck = false;
   var quizinfo;
 
-  countertimer(){
+  countertimer() {
     AutoLogoutMethod.autologout.counter(context);
   }
 
@@ -67,18 +66,16 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin{
   //   }
   // }
 
-
-  void _showAlertDialog(String title, String message,context) {
-
+  void _showAlertDialog(String title, String message, context) {
     AlertDialog alertDialog = AlertDialog(
       title: Text(title),
       content: Text(message),
       actions: <Widget>[
         FlatButton(
-          onPressed: (){
+          onPressed: () {
             Navigator.pop(context);
             Navigator.pop(context);
-          }, 
+          },
           child: Text('OK'),
         ),
       ],
@@ -86,8 +83,7 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin{
     showDialog(
         barrierDismissible: false,
         context: context,
-        builder: (_) => alertDialog
-    );
+        builder: (_) => alertDialog);
   }
 
   _getQuiz() async {
@@ -102,19 +98,16 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin{
         quizinfo = result;
         _loading = false;
       });
-
     }).then((value) {
-    controller.stop(canceled: true);
-    controller.reverse(
-    from: controller.value == 0.0
-        ? 1.0
-        : controller.value);
-    // counter(context);
-    print('completed with value $value');
-  }, onError: (error) {
-    print('completed with error $error');
-    quizList.clear();
-  });
+      controller.stop(canceled: true);
+      controller.reverse(
+          from: controller.value == 0.0 ? 1.0 : controller.value);
+      // counter(context);
+      print('completed with value $value');
+    }, onError: (error) {
+      print('completed with error $error');
+      quizList.clear();
+    });
   }
 
   @override
@@ -135,15 +128,30 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin{
     super.dispose();
   }
 
-    _injectJavaScript() {
-    _flutterWebviewPlugin.onStateChanged
-        .listen((WebViewStateChanged state) {
+  _injectJavaScript() {
+    _flutterWebviewPlugin.onStateChanged.listen((WebViewStateChanged state) {
+      if (state.url ==
+          'http://cbmoodle.southeastasia.cloudapp.azure.com:8085/login/index.php') {
+        _flutterWebviewPlugin.evalJavascript("""
+            var txtname = document.getElementById('username');
+            txtname.value = 'yin';
+            var txtpass = document.getElementById('password');
+            
+            txtpass.value = '12345678';
+            var button = document.getElementById('loginbtn');
+    button.form.submit();
+          """);
+      }
+      if (state.url ==
+          "http://cbmoodle.southeastasia.cloudapp.azure.com:8085/my/") {
+        Navigator.pop(context);
+      }
       _flutterWebviewPlugin.evalJavascript(
           "document.getElementsByClassName('fixed-top navbar navbar-light navbar-expand moodle-has-zindex')[0].style.display='none';");
       _flutterWebviewPlugin.evalJavascript(
           "document.getElementById('top-footer').style.display='none';");
       _flutterWebviewPlugin.evalJavascript(
-          "document.getElementById('nav-drawer').style.display='none';");    
+          "document.getElementById('nav-drawer').style.display='none';");
       _flutterWebviewPlugin.evalJavascript(
           "document.getElementsByClassName('pb-3')[0].style.display='none';");
       _flutterWebviewPlugin.evalJavascript(
@@ -164,6 +172,8 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin{
           "document.getElementById('signup').style.display='none';");
       _flutterWebviewPlugin.evalJavascript(
           "document.getElementsByClassName('welcome')[0].innerHTML='Please Log in for verification';");
+      _flutterWebviewPlugin.evalJavascript(
+          "document.getElementsByClassName('dropzones')[0].style.maxWidth='60%';");
       _flutterWebviewPlugin.evalJavascript("""
         var x = document.getElementsByClassName('info');
         for(var i = 0; i<x.length; i++){
@@ -178,85 +188,93 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin{
   }
 
   final ItemScrollController itemScrollController = ItemScrollController();
-  final ItemPositionsListener itemPositionListener = ItemPositionsListener.create();
-
-
+  final ItemPositionsListener itemPositionListener =
+      ItemPositionsListener.create();
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
+      onTap: () {
         countertimer();
       },
-    child:Scaffold(
-      backgroundColor: mBlue,
-      appBar: AppBar(
-        backgroundColor: _loading==false
-        ?Colors.white
-        :mBlue,
-        iconTheme: IconThemeData(
-            color: _loading==false
-            ?Colors.black
-            :Colors.white, //change your color here
+      child: Scaffold(
+        backgroundColor: mBlue,
+        appBar: AppBar(
+          leading: (IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                _flutterWebviewPlugin.close().then((_) {
+                  _flutterWebviewPlugin.onDestroy.listen((_) {
+                    _flutterWebviewPlugin.clearCache();
+                    _flutterWebviewPlugin.cleanCookies();
+                  });
+                  _flutterWebviewPlugin.onStateChanged.listen((_) {
+                    _flutterWebviewPlugin.clearCache();
+                    _flutterWebviewPlugin.cleanCookies();
+                  });
+                });
+
+                Navigator.pop(context);
+              })),
+          backgroundColor: _loading == false ? Colors.white : mBlue,
+          iconTheme: IconThemeData(
+            color: _loading == false
+                ? Colors.black
+                : Colors.white, //change your color here
           ),
-        title: Text(
-          module.name,
-          style: TextStyle(color: Colors.amber),
+          title: Text(
+            module.name,
+            style: TextStyle(color: Colors.amber),
+          ),
+          // actions: <Widget>[
+          //   timelimit == 0
+          //   ?Container()
+          //   :Container(
+          //     height: 5,
+          //     margin: EdgeInsets.symmetric(horizontal: 10),
+          //     padding: EdgeInsets.symmetric(horizontal: 10),
+          //     decoration: BoxDecoration(
+          //       borderRadius: BorderRadius.only(
+          //         bottomLeft: Radius.circular(8.0),
+          //         bottomRight: Radius.circular(8.0),
+          //       ),
+          //     ),
+          //     child:Row(
+          //       children:[
+          //         Container(
+          //           child:Text('Timer: ',
+          //             style: TextStyle(color:mBlue,fontWeight: FontWeight.bold,fontSize: 18),
+          //           ),
+          //         ),
+          //         Container(
+          //           child: AnimatedBuilder(
+          //               animation: controller,
+          //               builder: (BuildContext context, Widget child) {
+          //                 return Text(
+          //                   timerString,
+          //                   style: TextStyle(color:mBlue,fontWeight: FontWeight.bold,fontSize: 18),
+          //                 );
+          //               }),
+          //         ),
+          //       ]
+          //     ),
+          //   ),
+          // ],
+          elevation: 0.0,
         ),
-        // actions: <Widget>[
-        //   timelimit == 0
-        //   ?Container()
-        //   :Container(
-        //     height: 5,
-        //     margin: EdgeInsets.symmetric(horizontal: 10),
-        //     padding: EdgeInsets.symmetric(horizontal: 10),
-        //     decoration: BoxDecoration(
-        //       borderRadius: BorderRadius.only(
-        //         bottomLeft: Radius.circular(8.0),
-        //         bottomRight: Radius.circular(8.0),
-        //       ),
-        //     ),
-        //     child:Row(
-        //       children:[
-        //         Container(
-        //           child:Text('Timer: ',
-        //             style: TextStyle(color:mBlue,fontWeight: FontWeight.bold,fontSize: 18),
-        //           ),
-        //         ),
-        //         Container(
-        //           child: AnimatedBuilder(
-        //               animation: controller,
-        //               builder: (BuildContext context, Widget child) {
-        //                 return Text(
-        //                   timerString,
-        //                   style: TextStyle(color:mBlue,fontWeight: FontWeight.bold,fontSize: 18),
-        //                 );
-        //               }),
-        //         ),
-        //       ]
-        //     ), 
-        //   ),
-        // ],
-        elevation: 0.0,
-      ),
-      body: _loading == true
-          ? Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation(Colors.white),
+        body: _loading == true
+            ? Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                ),
+              )
+            : WebviewScaffold(
+                url:
+                    'http://cbmoodle.southeastasia.cloudapp.azure.com:8085/mod/quiz/attempt.php?attempt=${quizinfo['attemptid']}&cmid=${quizinfo['moduleid']}',
+                withJavascript: true,
+                hidden: true,
+                initialChild: Center(child: CircularProgressIndicator()),
               ),
-            )
-          :WebviewScaffold(
-            url:
-                'http://cbmoodle.southeastasia.cloudapp.azure.com:8085/mod/quiz/attempt.php?attempt=${quizinfo['attemptid']}&cmid=${quizinfo['moduleid']}',
-            // appBar: AppBar(
-            //   leading: IconButton(icon: Icon(Icons.arrow_back), onPressed: (){}),
-            //   backgroundColor: mBlue,
-            //   title: Text('Quiz testing'),
-            // ),
-            withJavascript: true,
-            hidden: true,
-            initialChild: Center(child:CircularProgressIndicator()),
-          ),
-    ),
+      ),
     );
   }
 }
@@ -292,16 +310,6 @@ class TimerPainter extends CustomPainter {
         backgroundColor != old.backgroundColor;
   }
 }
-
-
-
-
-
-
-
-
-
-
 
 // import 'package:flutter/cupertino.dart';
 // import 'package:flutter/material.dart';
@@ -372,7 +380,6 @@ class TimerPainter extends CustomPainter {
 //     }
 //   }
 
-
 //   void _showAlertDialog(String title, String message,context) {
 
 //     AlertDialog alertDialog = AlertDialog(
@@ -383,7 +390,7 @@ class TimerPainter extends CustomPainter {
 //           onPressed: (){
 //             Navigator.pop(context);
 //             Navigator.pop(context);
-//           }, 
+//           },
 //           child: Text('OK'),
 //         ),
 //       ],
@@ -431,7 +438,7 @@ class TimerPainter extends CustomPainter {
 //       //   response = await http.get(url).then((data) {
 //       //     var result = json.decode(data.body);
 //       //   });
-//       // } 
+//       // }
 //       // on FormatException catch (_) {
 //       //   print("You can only answer once");
 //       //   setState(() {
@@ -699,9 +706,9 @@ class TimerPainter extends CustomPainter {
 //               ),
 //             ],
 //           );
-//         }); 
+//         });
 //     }
-//     else if(_unanswered_quizlist.length!=quizList.length){ 
+//     else if(_unanswered_quizlist.length!=quizList.length){
 //       showDialog(
 //         context: context,
 //         builder: (BuildContext context) {
@@ -727,7 +734,7 @@ class TimerPainter extends CustomPainter {
 //               ),
 //             ],
 //           );
-//         }); 
+//         });
 //     }
 //   }
 
@@ -783,7 +790,7 @@ class TimerPainter extends CustomPainter {
 //                       }),
 //                 ),
 //               ]
-//             ), 
+//             ),
 //           ),
 //         ],
 //         elevation: 0.0,
@@ -817,7 +824,7 @@ class TimerPainter extends CustomPainter {
 //                                 color: Colors.white,
 //                                 borderRadius: new BorderRadius.only(
 //                                     bottomLeft: const Radius.circular(20.0),
-//                                     bottomRight: const Radius.circular(20.0))), 
+//                                     bottomRight: const Radius.circular(20.0))),
 //                             child: ScrollablePositionedList.builder(
 //                               scrollDirection: Axis.horizontal,
 //                               itemCount: quizList.length,

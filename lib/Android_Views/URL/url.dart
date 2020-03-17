@@ -5,7 +5,7 @@
 var urlLink = 'http://cbmoodle.southeastasia.cloudapp.azure.com:5000';
 
 //thura link
-//var urlLink = 'http://192.168.3.139:5000';
+// var urlLink = 'http://192.168.1.6:5000';
 
 // local link
 //var urlLink = 'http://192.168.3.191:5000'; 
