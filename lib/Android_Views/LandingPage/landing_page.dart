@@ -31,7 +31,6 @@ class _LandingPageState extends State<LandingPage> {
   accCheck() async{
     await PersonDatabaseProvider.db.getAllPersons().then((value) {
       if(value.length != 0){
-        print(value[0].password);
               token = value[0].token;
               currentUser = User(
                 id: value[0].id,

@@ -110,6 +110,89 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin {
     });
   }
 
+  dialogLoading() {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Column(
+                  children: [
+                    Center(
+                      child: Container(
+                        height: 2.5,
+                        child: LinearProgressIndicator(
+                          backgroundColor: Colors.white,
+                          valueColor: AlwaysStoppedAnimation(mBlue),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 16.0),
+                      child: Text(
+                        'Checking quiz progress...'.toUpperCase(),
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
+  setModuleCompleteStatus() async {
+    var setCompleteUrl = '$urlLink/$token/module/complete/${module.id}/';
+    await http.get(setCompleteUrl).then((status) {
+      var data = json.decode(status.body);
+      if (data['status'] == true) {
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      }
+    }).then((value) {
+    print('setModuleCompleteStatus completed with value $value');
+  }, onError: (error) {
+    print('setModuleCompleteStatus completed with error $error');
+  });
+  }
+
+  checkFinishModule() async{
+    var url = '$urlLink/$token/status/quiz/${module.instance}/';
+    print(url);
+    _flutterWebviewPlugin.close().then((_) {
+      _flutterWebviewPlugin.onDestroy.listen((_) {
+        _flutterWebviewPlugin.clearCache();
+        _flutterWebviewPlugin.cleanCookies();
+      });
+      _flutterWebviewPlugin.onStateChanged.listen((_) {
+        _flutterWebviewPlugin.clearCache();
+        _flutterWebviewPlugin.cleanCookies();
+      });
+    });
+    dialogLoading();
+    await http.get(url).then((response) async{
+      var data = json.decode(response.body);
+      print(data["status"]);
+      if(data["status"] == "unfinished"){
+        Navigator.of(context).pop();
+        Navigator.of(context).pop();
+      }
+      else if(data["status"] == "finished"){
+        setModuleCompleteStatus();
+      }
+    });   
+  }
+
   @override
   void initState() {
     super.initState();
@@ -124,7 +207,6 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin {
 
   @override
   dispose() {
-    // quiztimer.cancel();
     super.dispose();
   }
 
@@ -202,18 +284,7 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin {
           leading: (IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () {
-                _flutterWebviewPlugin.close().then((_) {
-                  _flutterWebviewPlugin.onDestroy.listen((_) {
-                    _flutterWebviewPlugin.clearCache();
-                    _flutterWebviewPlugin.cleanCookies();
-                  });
-                  _flutterWebviewPlugin.onStateChanged.listen((_) {
-                    _flutterWebviewPlugin.clearCache();
-                    _flutterWebviewPlugin.cleanCookies();
-                  });
-                });
-
-                Navigator.pop(context);
+                checkFinishModule();
               })),
           backgroundColor: _loading == false ? Colors.white : mBlue,
           iconTheme: IconThemeData(

@@ -76,6 +76,7 @@ class _CourseModulesState extends State<CourseModules> {
         );
       }
       else if(eventtype == 'quiz') {
+        print(topic.modules[i]);
       _startQuiz(topic.modules[i],100);
       }
     } 
