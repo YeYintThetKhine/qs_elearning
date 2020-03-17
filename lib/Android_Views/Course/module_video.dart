@@ -37,7 +37,59 @@ class _ModuleVideoState extends State<ModuleVideo> {
 
   var _progress;
 
+  String eventtype = 'initail';
+
   bool videodownloadconfirm = false;
+
+  _connectionCheck(context) async{
+    var connectivityResult = await (Connectivity().checkConnectivity());
+    if (connectivityResult == ConnectivityResult.mobile || connectivityResult == ConnectivityResult.wifi) {
+      if(eventtype == "exit"){
+        print('false');
+        dialogLoading();
+        setModuleCompleteStatus();
+      }
+      else if(eventtype == "download"){
+        setState(() {
+          videodownloadconfirm = true;
+        });
+        Navigator.of(context).pop();
+        downloadVideo();
+        var videoId = await ImageDownloader.downloadImage("${module.url + '&token=$token'}");
+        if (videoId == null) {
+          return;
+        }
+
+        // Below is a method of obtaining saved image information.
+        var fileName = await ImageDownloader.findName(videoId);
+        var path = await ImageDownloader.findPath(videoId);
+        var size = await ImageDownloader.findByteSize(videoId);
+        var mimeType = await ImageDownloader.findMimeType(videoId);
+      }
+    } 
+    else if(connectivityResult == ConnectivityResult.none){
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return WillPopScope(
+            onWillPop: () async => false,
+            child: AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            title: Text('Mobile Connection Lost'),
+            content: Text('Please connect to your wifi or turn on mobile data and try again'),
+            actions: <Widget>[
+              FlatButton(onPressed: (){
+                Navigator.pop(context);
+                _connectionCheck(context);
+              }, child: Text('Try again'))
+            ],
+          ),
+        );
+      });
+    }
+  }
 
 void downloadVideo() async{
   try {
@@ -78,22 +130,8 @@ void downloadVideo() async{
               videodownloadconfirm == false
               ?FlatButton(
                 onPressed: () async{
-                  setState(() {
-                    videodownloadconfirm = true;
-                  });
-                  Navigator.of(context).pop();
-                  downloadVideo();
-                  var videoId = await ImageDownloader.downloadImage("${module.url + '&token=$token'}");
-                  if (videoId == null) {
-                    return;
-                  }
-
-                  // Below is a method of obtaining saved image information.
-                  var fileName = await ImageDownloader.findName(videoId);
-                  var path = await ImageDownloader.findPath(videoId);
-                  var size = await ImageDownloader.findByteSize(videoId);
-                  var mimeType = await ImageDownloader.findMimeType(videoId);
-                  
+                eventtype = "download";
+                _connectionCheck(context);
                 },
                 child: Text('Yes'),
               )
@@ -183,12 +221,16 @@ void downloadVideo() async{
               content: Text('Please connect to your wifi or turn on mobile data and try again'),
               actions: <Widget>[
                 FlatButton(onPressed: (){
-                  Navigator.pop(context);
-                  Navigator.pop(context);
-                  ImageDownloader.cancel();
-                  setState(() {
-                    videodownloadconfirm = false;
-                  });
+                  if(videodownloadconfirm == true){
+                    Navigator.pop(context);
+                    ImageDownloader.cancel();
+                    setState(() {
+                      videodownloadconfirm = false;
+                    });
+                  }
+                  else{
+                    Navigator.pop(context);
+                  }
                 }, child: Text('OK'))
               ],
             ),
@@ -196,6 +238,7 @@ void downloadVideo() async{
         });
       }
     });
+    print('${module.url}&token=$token');
     _controller = VideoPlayerController.network('${module.url}&token=$token')
       ..initialize().then((_) {
         setState(() {
@@ -218,11 +261,53 @@ void downloadVideo() async{
     // _controller.play();
   }
 
+  dialogLoading() {
+    showDialog(
+        barrierDismissible: false,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Column(
+                  children: [
+                    Center(
+                      child: Container(
+                        height: 2.5,
+                        child: LinearProgressIndicator(
+                          backgroundColor: Colors.white,
+                          valueColor: AlwaysStoppedAnimation(mBlue),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(top: 16.0),
+                      child: Text(
+                        'Loading...'.toUpperCase(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ],
+            ),
+          );
+        });
+  }
+
   setModuleCompleteStatus() async {
     var setCompleteUrl = '$urlLink/$token/module/complete/${module.id}/';
     await http.get(setCompleteUrl).then((status) {
       var data = json.decode(status.body);
+      print(data['status']);
       if (data['status'] == true) {
+        Navigator.of(context).pop();
         Navigator.of(context).pop();
       }
     }).then((value) {
@@ -242,15 +327,6 @@ void downloadVideo() async{
     ImageDownloader.cancel();
     _controller.pause();
     _controller.dispose();
-    if(module.completeStatus == 1){
-      print('here');
-    }
-    else{
-      if(finish == true){
-        print('false');
-        setModuleCompleteStatus();
-      }
-    }
     super.dispose();
   }
 
@@ -357,9 +433,15 @@ void downloadVideo() async{
                                     opacity: _opacity,
                                     child: _opacity == 1.0
                                         ? IconButton(
-                                            onPressed: () {
+                                          onPressed: () {
+                                            if(finish == true){
+                                              eventtype="exit";
+                                              _connectionCheck(context);
+                                            }
+                                            else{
                                               Navigator.of(context).pop();
-                                            },
+                                            }
+                                          },
                                             color: Colors.white,
                                             icon: Icon(Icons.chevron_left),
                                             iconSize: 24.0,
@@ -392,7 +474,13 @@ void downloadVideo() async{
                                 child: _opacity == 1.0
                                     ? IconButton(
                                         onPressed: () {
-                                          Navigator.of(context).pop();
+                                          if(finish == true){
+                                              eventtype="exit";
+                                              _connectionCheck(context);
+                                          }
+                                          else{
+                                            Navigator.of(context).pop();
+                                          }
                                         },
                                         color: Colors.white,
                                         icon: Icon(Icons.chevron_left),

@@ -27,6 +27,7 @@ class PersonDatabaseProvider {
           "id TEXT,"
           "name TEXT,"
           "username TEXT,"
+          "password TEXT,"
           "email TEXT,"
           "imgUrl TEXT,"
           "position TEXT,"

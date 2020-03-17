@@ -56,6 +56,7 @@ class User {
   String id;
   String name;
   String username;
+  String password;
   String email;
   String imgUrl;
   String position;
@@ -66,6 +67,7 @@ class User {
     @required this.id,
     @required this.name,
     @required this.username,
+    @required this.password,
     @required this.email,
     @required this.imgUrl,
     @required this.position,
@@ -79,6 +81,7 @@ class Person {
   String id;
   String name;
   String username;
+  String password;
   String email;
   String imgUrl;
   String position;
@@ -90,6 +93,7 @@ class Person {
     this.id,
     this.name,
     this.username,
+    this.password,
     this.email,
     this.imgUrl,
     this.position,
@@ -102,6 +106,7 @@ class Person {
         id: json["id"],
         name: json["name"],
         username: json["username"],
+        password: json["password"],
         email: json["email"],
         imgUrl: json["imgUrl"],
         position: json["position"],
@@ -114,6 +119,7 @@ class Person {
         "id": id,
         "name": name,
         "username": username,
+        "password": password,
         "email": email,
         "imgUrl": imgUrl,
         "position": position,

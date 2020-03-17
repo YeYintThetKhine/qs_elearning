@@ -129,45 +129,25 @@ class _CourseModulesState extends State<CourseModules> {
   }
 
   Future<Topic> getModules() async {
-    var modUrl = '$urlLink/$token/course/$courseId/section/${topic.id}/';
+    var modUrl = '$urlLink/$token/course/$courseId/section/${topic.id}/user/${currentUser.id}/';
     print(modUrl);
     var response;
-      try {
-        response = await http.get(modUrl).timeout(
-              Duration(seconds: 20),
-            );
-      } on TimeoutException catch (_) {
-        setState(() {
-          connectionreload = true;
-        });
-      } catch (e) {
-        setState(() {
-          connectionreload = true;
-        });
-      }
+      // try {
+      //   response = await http.get(modUrl).timeout(
+      //         Duration(seconds: 20),
+      //       );
+      // } on TimeoutException catch (_) {
+      //   setState(() {
+      //     connectionreload = true;
+      //   });
+      // } catch (e) {
+      //   setState(() {
+      //     connectionreload = true;
+      //   });
+      // }
     await http.get(modUrl).then((response) async{
       var mods = json.decode(response.body);
-
-    String uid = currentUser.id;
-    var quizAdditionalUrl = '$urlLink/$token/quizinfo/course/$courseId/user/$uid/';
-    print(quizAdditionalUrl);
-    // await http.get(quizAdditionalUrl).then((response) {
-    //   var data = json.decode(response.body);
-    //     for (var quiz in data['quiz_info']) {
-    //       _quizDetailList.add(
-    //         QuizAdditionalDetail(
-    //           quizid:quiz['quizid'],
-    //           courseid:quiz['courseid'],
-    //           moduleid:quiz['moduleid'],
-    //           name:quiz['name'],
-    //           timelimit:quiz['timelimit'],
-    //           maxattempts:quiz['maxattempts'],
-    //           usercurrentattempts:quiz['usercurrentattempts'],
-    //         ),
-    //       );
-    //     }
-    // });
-
+      print(mods[0]["modules"].length);
       if (mods[0]['modules'].length > 0) {
         List<Module> _moduleList = [];
         for (var module in mods[0]['modules']) {

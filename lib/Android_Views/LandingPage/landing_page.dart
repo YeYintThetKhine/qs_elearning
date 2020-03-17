@@ -31,11 +31,13 @@ class _LandingPageState extends State<LandingPage> {
   accCheck() async{
     await PersonDatabaseProvider.db.getAllPersons().then((value) {
       if(value.length != 0){
+        print(value[0].password);
               token = value[0].token;
               currentUser = User(
                 id: value[0].id,
                 name: value[0].name,
                 username: value[0].username,
+                password: value[0].password,
                 email: value[0].email,
                 imgUrl: value[0].imgUrl,
                 department: value[0].department,
@@ -102,12 +104,14 @@ class _LandingPageState extends State<LandingPage> {
         } else {
           token = data['token'];
           var getUser = '$urlLink/$token/user/$username/';
+          print(getUser);
           await http.get(getUser).then((userDate) {
             var userData = json.decode(userDate.body);
             currentUser = User(
               id: userData[0]['id'].toString(),
               name: userData[0]['fullname'],
               username: userData[0]['username'],
+              password: _password.text,
               email: userData[0]['email'],
               imgUrl: userData[0]['profileimageurl'],
               department: userData[0]['department'],
@@ -122,6 +126,7 @@ class _LandingPageState extends State<LandingPage> {
             acc.id = userData[0]['id'].toString();
             acc.name = userData[0]['fullname'];
             acc.username = userData[0]['username'];
+            acc.password = _password.text;
             acc.email = userData[0]['email'];
             acc.imgUrl = userData[0]['profileimageurl'];
             acc.department = userData[0]['department'];
