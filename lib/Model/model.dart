@@ -310,6 +310,16 @@ class Department {
   });
 }
 
+class Entity {
+  String entid;
+  String name;
+
+  Entity({
+    this.entid,
+    this.name,
+  });
+}
+
 class LessonDownload {
   String id;
   String userid;
