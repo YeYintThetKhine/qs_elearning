@@ -12,6 +12,7 @@ import 'package:moodle_test/Android_Views/Auto_Logout_Method.dart';
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter_webview_plugin/flutter_webview_plugin.dart';
+import '../../Model/user.dart';
 
 class ModuleQuiz extends StatefulWidget {
   final token;
@@ -169,16 +170,16 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin {
   checkFinishModule() async{
     var url = '$urlLink/$token/status/quiz/${module.instance}/';
     print(url);
-    _flutterWebviewPlugin.close().then((_) {
-      _flutterWebviewPlugin.onDestroy.listen((_) {
-        _flutterWebviewPlugin.clearCache();
-        _flutterWebviewPlugin.cleanCookies();
-      });
-      _flutterWebviewPlugin.onStateChanged.listen((_) {
-        _flutterWebviewPlugin.clearCache();
-        _flutterWebviewPlugin.cleanCookies();
-      });
-    });
+    // _flutterWebviewPlugin.close().then((_) {
+    //   _flutterWebviewPlugin.onDestroy.listen((_) {
+    //     _flutterWebviewPlugin.clearCache();
+    //     _flutterWebviewPlugin.cleanCookies();
+    //   });
+    //   _flutterWebviewPlugin.onStateChanged.listen((_) {
+    //     _flutterWebviewPlugin.clearCache();
+    //     _flutterWebviewPlugin.cleanCookies();
+    //   });
+    // });
     dialogLoading();
     await http.get(url).then((response) async{
       var data = json.decode(response.body);
@@ -207,6 +208,7 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin {
 
   @override
   dispose() {
+    controller.dispose();
     super.dispose();
   }
 
@@ -216,13 +218,14 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin {
           'http://cbmoodle.southeastasia.cloudapp.azure.com:8085/login/index.php') {
         _flutterWebviewPlugin.evalJavascript("""
             var txtname = document.getElementById('username');
-            txtname.value = 'yin';
+            txtname.value = '${currentUser.username}';
             var txtpass = document.getElementById('password');
             
-            txtpass.value = '12345678';
+            txtpass.value = '${currentUser.password}';
             var button = document.getElementById('loginbtn');
     button.form.submit();
           """);
+        _flutterWebviewPlugin.evalJavascript("""document.getElementsByClassName('row')[0].style.opacity='0'""");
       }
       if (state.url ==
           "http://cbmoodle.southeastasia.cloudapp.azure.com:8085/my/") {
@@ -339,6 +342,9 @@ class _ModuleQuizState extends State<ModuleQuiz> with TickerProviderStateMixin {
                 ),
               )
             : WebviewScaffold(
+              appCacheEnabled: false,
+              clearCookies: true,
+              clearCache: true,
                 url:
                     'http://cbmoodle.southeastasia.cloudapp.azure.com:8085/mod/quiz/attempt.php?attempt=${quizinfo['attemptid']}&cmid=${quizinfo['moduleid']}',
                 withJavascript: true,

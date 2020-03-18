@@ -58,12 +58,53 @@ class _LandingPageState extends State<LandingPage> {
   }
 
   accLogin() async {
+    FocusScope.of(context).requestFocus(FocusNode());
     if (_signupKey.currentState.validate()) {
       setState(() {
         _signingIn = true;
       });
       var username = _username.text.toLowerCase();
       var password = _password.text;
+      var link = '$urlLink/c745fd1558356daeddd2982bbda523bb/user/$username/';
+      await http
+          .get(link)
+          .timeout(Duration(seconds: 20))
+          .then((res) async {
+        final check = jsonDecode(res.body);
+        if (check.length == 0 || check == null){
+          showDialog(context: context,
+          builder: (context)=>AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20)
+            ),
+            title: Text('Username not found'),
+            content: Text('Please create an account first'),
+            actions: <Widget>[FlatButton(
+              child: Text('Close'),
+              onPressed: (){Navigator.pop(context);},
+            )],
+          ));
+          setState(() {
+            _signingIn = false;
+          });
+        }
+        else if (check[0]["confirmed"] == false) {
+          showDialog(context: context,
+          builder: (context)=>AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20)
+            ),
+            title: Text('Account not confirmed'),
+            content: Text('Please verify with provided email or contact admin'),
+            actions: <Widget>[FlatButton(
+              child: Text('Close'),
+              onPressed: (){Navigator.pop(context);},
+            )],
+          ));
+          setState(() {
+            _signingIn = false;
+          });
+        } else {
       var response;
       var url = '$urlLink/login/$username/$password/';
       try {
@@ -146,8 +187,11 @@ class _LandingPageState extends State<LandingPage> {
   });
         }
       }
+        }
+          });
     }
   }
+
     @override
   void initState() {
     super.initState();
