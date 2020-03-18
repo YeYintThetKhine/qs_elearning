@@ -30,6 +30,7 @@ class _RegistryState extends State<Registry> {
   String errorType;
   String errorMessage;
   List<Department> currentdepartment = [];
+  List<Entity> entity = [];
 
   static const List<String> deparments = [
     'CB Insurance',
@@ -70,8 +71,8 @@ class _RegistryState extends State<Registry> {
     "Other"
   ];
 
-  String dept = deptlist[0];
-  String department = deparments[0];
+  String dept;
+  String entityname;
   String branch = branchlist[0];
   TextStyle _labelStyle = TextStyle(
     color: const Color(0xFF302B7E),
@@ -89,18 +90,37 @@ class _RegistryState extends State<Registry> {
   _department() async {
     var progressUrl =
         '$urlLink/getdep/';
-        print(urlLink);
-    await http.get(progressUrl).then((response) {
+        print(progressUrl);
+    await http.get(progressUrl).then((response) async{
       var results = json.decode(response.body);
       print(results['dep_data'][0]);
       for (var result in results['dep_data']) {
         currentdepartment.add(
           Department(
             depid: result['id'].toString(),
-            name: result['name'],
+            name: result['name'].toString(),
           ),
         );
       }
+
+    var entityUrl = '$urlLink/getet/';
+    await http.get(entityUrl).then((response) async{
+      var results = json.decode(response.body);
+      print(results['et_data'][0]);
+      for (var result in results['et_data']) {
+        entity.add(
+          Entity(
+            entid: result['id'].toString(),
+            name: result['name'].toString(),
+          ),
+        );
+      }
+    });
+      setState(() {
+        _loading = false;
+      });
+      dept = currentdepartment[0].name;
+      entityname = entity[0].name;
       print(currentdepartment[0].name);
     });
   }
@@ -108,6 +128,9 @@ class _RegistryState extends State<Registry> {
   @override
   void initState() {
     super.initState();
+    setState(() {
+      _loading = true;
+    });
     _department();
   }
 
@@ -131,7 +154,7 @@ class _RegistryState extends State<Registry> {
         var password = _passwordController.text;
         var pos = _positionController.text;
 
-        var type = department;  
+        var type = entityname;  
 
         var branch = branchlist[0];  
         //api.add_resource(UserEmailSignUp, '/register/<email>/<username>/<firstname>/<lastname>'
@@ -197,7 +220,13 @@ class _RegistryState extends State<Registry> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
+    return _loading == true
+    ? Center(
+      child: CircularProgressIndicator(
+        valueColor: AlwaysStoppedAnimation(mBlue),
+      ),
+    )
+    :Form(
       key: _regFormKey,
       child: GestureDetector(
         onTap: () {
@@ -350,9 +379,9 @@ class _RegistryState extends State<Registry> {
                             helperText: 'This is your department at work',
                             contentPadding:
                                 EdgeInsets.only(top: 10, bottom: 8.0)),
-                        items: deptlist.map((item) {
+                        items: currentdepartment.map((item) {
                           return new DropdownMenuItem<String>(
-                              value: item, child: Text(item));
+                              value: item.name, child: Text(item.name));
                         }).toList(),
                         onChanged: (value) {
                           setState(() {
@@ -372,16 +401,16 @@ class _RegistryState extends State<Registry> {
                             helperText: 'Choose the type of training',
                             contentPadding:
                                 EdgeInsets.only(top: 10, bottom: 8.0)),
-                        items: deparments.map((item) {
+                        items: entity.map((item) {
                           return new DropdownMenuItem<String>(
-                              value: item, child: Text(item));
+                              value: item.name, child: Text(item.name));
                         }).toList(),
                         onChanged: (value) {
                           setState(() {
-                            department = value;
+                            entityname = value;
                           });
                         },
-                        value: department,
+                        value: entityname,
                       )),
                   Container(
                       padding: EdgeInsets.only(top: 12.0, bottom: 12.0),
