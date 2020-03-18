@@ -320,6 +320,16 @@ class Entity {
   });
 }
 
+class Branch {
+  String brid;
+  String name;
+
+  Branch({
+    this.brid,
+    this.name,
+  });
+}
+
 class LessonDownload {
   String id;
   String userid;

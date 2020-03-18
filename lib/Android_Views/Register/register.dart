@@ -31,6 +31,7 @@ class _RegistryState extends State<Registry> {
   String errorMessage;
   List<Department> currentdepartment = [];
   List<Entity> entity = [];
+  List<Branch> branch = [];
 
   static const List<String> deparments = [
     'CB Insurance',
@@ -73,7 +74,7 @@ class _RegistryState extends State<Registry> {
 
   String dept;
   String entityname;
-  String branch = branchlist[0];
+  String branchname;
   TextStyle _labelStyle = TextStyle(
     color: const Color(0xFF302B7E),
   );
@@ -116,11 +117,26 @@ class _RegistryState extends State<Registry> {
         );
       }
     });
+
+    var branchUrl = '$urlLink/getbr/';
+    await http.get(branchUrl).then((response) async{
+      var results = json.decode(response.body);
+      print(results['br_data'][0]);
+      for (var result in results['br_data']) {
+        branch.add(
+          Branch(
+            brid: result['id'].toString(),
+            name: result['name'].toString(),
+          ),
+        );
+      }
+    });
       setState(() {
         _loading = false;
       });
       dept = currentdepartment[0].name;
       entityname = entity[0].name;
+      branchname = branch[0].name;
       print(currentdepartment[0].name);
     });
   }
@@ -422,16 +438,16 @@ class _RegistryState extends State<Registry> {
                             helperText: 'This is your branch of work',
                             contentPadding:
                                 EdgeInsets.only(top: 10, bottom: 8.0)),
-                        items: branchlist.map((item) {
+                        items: branch.map((item) {
                           return DropdownMenuItem<String>(
-                              value: item, child: Text(item));
+                              value: item.name, child: Text(item.name));
                         }).toList(),
                         onChanged: (value) {
                           setState(() {
-                            branch = value;
+                            branchname = value;
                           });
                         },
-                        value: branch,
+                        value: branchname,
                       )),
                 ],
               )),
